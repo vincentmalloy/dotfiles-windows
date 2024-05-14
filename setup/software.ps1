@@ -46,3 +46,8 @@
 #     Write-Output "Installing Microsoft.WindowsTerminal.Preview"
 #     winget install --source winget --id Microsoft.WindowsTerminal.Preview --silent --accept-package-agreements
 # }
+# install Microsoft.OpenSSH.Beta
+# if(!(installed("Microsoft.OpenSSH.Beta"))){
+#     Write-Output "Installing Microsoft.OpenSSH.Beta"
+#     winget install --source winget --id Microsoft.OpenSSH.Beta --silent --accept-package-agreements
+# }
