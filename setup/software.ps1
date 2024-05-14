@@ -7,6 +7,10 @@ if(!(Get-Module -ListAvailable -Name FP.SetWallpaper)){
     Write-Output "Installing FP.SetWallpaper"
     Install-Module -Name FP.SetWallpaper -Force
 }
+if(!(Get-InstalledModule -RequiredVersion 2.1.0 -Name PSReadLine)){
+    Write-Output "Installing PSReadLine"
+    Install-Module PSReadLine -RequiredVersion 2.1.0 -Force
+}
 # # remove microsoft store form winget sources
 # # winget source remove msstore | Out-Null
 # # install minimal git
