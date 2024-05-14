@@ -30,6 +30,8 @@ if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Output "Installing Git.MinGit"
     winget install --source winget --id Git.MinGit --silent --accept-package-agreements
 }
+# refresh $path
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 # make git trust windows cert
 git config --global http.sslBackend schannel
 
