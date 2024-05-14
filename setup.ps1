@@ -1,9 +1,11 @@
+Write-Host "Setting up dotfiles..."
 # Get the ID and security principal of the current user account
 $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)
 # Check to see if we are currently running "as Administrator"
 if(!$myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)){
     Write-Host "please run this script in a Powershell with elevated Privileges"
+    Read-Host "Press any key to exit"
     exit
 }
 Write-Host "symlinks"

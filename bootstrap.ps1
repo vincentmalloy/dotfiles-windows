@@ -57,6 +57,4 @@ if (!(Test-Path "$HOME\.dotfiles")) {
 
 # run setup script in .dotfiles folder
 Write-Output "Running setup script in .dotfiles folder"
-Push-Location "$HOME\.dotfiles"
-Start-Process -Verb RunAs -FilePath powershell -ArgumentList "./setup.ps1" -Wait
-Pop-Location
+Start-Process -Verb RunAs -FilePath powershell -ArgumentList "~/.dotfiles/setup.ps1" -Wait
