@@ -15,9 +15,13 @@ ${function:dt} = { Set-Location ~\Desktop }
 ${function:docs} = { Set-Location ~\Documents }
 ${function:dl} = { Set-Location ~\Downloads }
 
+# git alias function (without parameters it acts as git status)
+${function:g} = { if ($args) { & git $args } else { & git status -sb} }
+${function:ga} = { & git add $args }
+${function:gc} = { & git commit -m $args }
+
 # Missing Bash aliases
 Set-Alias time Measure-Command
 
 # misc
-Set-Alias g git
 Set-Alias l Get-ChildItem
