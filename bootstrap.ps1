@@ -6,34 +6,30 @@ if ($myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Admini
     Write-Host "do not run this script with elevated privileges"
     exit
 }
+
 $dotfilesUser = Read-Host "Enter github username"
 
-$prerequisiteInstallation = {
-    # install winget cli
-    if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
-        Write-Output "Installing winget"
-        # install Microsoft.DesktopAppInstaller msixbundle from github
-        $gitLatestReleaseApi = (Invoke-WebRequest -UseBasicParsing https://api.github.com/repos/microsoft/winget-cli/releases/latest).Content | ConvertFrom-Json
-        $wingetObject = $gitLatestReleaseApi.assets `
-        | Where-Object { $_.name -match "Microsoft.DesktopAppInstaller_[\d.]*?.msixbundle" } `
-        | Select-Object browser_download_url | Select-Object -First 1
-        # download first asset
-        $wingetObject `
-        | ForEach-Object { (New-Object Net.WebClient).DownloadFile($_.browser_download_url, "$env:temp\winget.msixbundle") }
-        # install msixbundle
-        Add-AppxPackage -Path "$env:temp\winget.msixbundle" -ForceApplicationShutdown
-        # remove temp file
-        Remove-Item -Path "$env:temp\winget.msixbundle" -Recurse -Force
-    }
-    # install minimal git
-    if (!(Get-Command git -ErrorAction SilentlyContinue)) {
-        Write-Output "Installing Git.MinGit"
-        winget install --source winget --id Git.MinGit --silent --accept-package-agreements
-    }
+# install winget cli
+if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Output "Installing winget"
+    # install Microsoft.DesktopAppInstaller msixbundle from github
+    $gitLatestReleaseApi = (Invoke-WebRequest -UseBasicParsing https://api.github.com/repos/microsoft/winget-cli/releases/latest).Content | ConvertFrom-Json
+    $wingetObject = $gitLatestReleaseApi.assets `
+    | Where-Object { $_.name -match "Microsoft.DesktopAppInstaller_[\d.]*?.msixbundle" } `
+    | Select-Object browser_download_url | Select-Object -First 1
+    # download first asset
+    $wingetObject `
+    | ForEach-Object { (New-Object Net.WebClient).DownloadFile($_.browser_download_url, "$env:temp\winget.msixbundle") }
+    # install msixbundle
+    Add-AppxPackage -Path "$env:temp\winget.msixbundle" -ForceApplicationShutdown
+    # remove temp file
+    Remove-Item -Path "$env:temp\winget.msixbundle" -Recurse -Force
 }
-
-Start-Process -Verb RunAs -FilePath "powershell" -ArgumentList "-NoProfile -Command $prerequisiteInstallation" -Wait
-
+# install minimal git
+if (!(Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Output "Installing Git.MinGit"
+    winget install --source winget --id Git.MinGit --silent --accept-package-agreements
+}
 # make git trust windows cert
 git config --global http.sslBackend schannel
 
