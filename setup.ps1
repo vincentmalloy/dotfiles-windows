@@ -19,7 +19,7 @@ function Create-Symlinks {
     )
     Get-ChildItem $source | ForEach-Object -process {
         # $_ is a directory, create a symlink
-        if((Test-Path "$destination\$_" -PathType Container)){
+        if((Test-Path "$source\$_" -PathType Container)){
             if(!(Test-Path "$destination\$_")){
                 New-Item -Path "$destination\$_" -ItemType Directory -Force
             }

@@ -34,7 +34,7 @@ else {
     Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
 }
 # setup vs code terminal font
-$vsCodeSettingsPath = "$env:APPDATA\Code\User\settings.json"
+$vsCodeSettingsPath = (Get-Item "$env:APPDATA\Code*\User\settings.json" | Select-Object -ExpandProperty FullName)
 $vsCodeSettingsData = Get-Content -Raw -Path $vsCodeSettingsPath | ConvertFrom-Json
 $vsCodeSettingsData | Add-Member -Name "terminal.integrated.fontFamily" -Value "RobotoMono NFM" -MemberType NoteProperty -Force
 $vsCodeSettingsData | ConvertTo-Json | Out-File $vsCodeSettingsPath -Encoding utf8
@@ -58,6 +58,9 @@ if(!(Get-Member -InputObject $settingsData.profiles.defaults.font -Name "face"))
 }
 $settingsData.profiles.defaults.font.face = "RobotoMono Nerd Font Mono"
 # set background image
+if(!(Get-Member -InputObject $settingsData.profiles.defaults -Name "backgroundImage")){
+    $settingsData.profiles.defaults | Add-Member -Name "backgroundImage" -Value @{} -MemberType NoteProperty
+}
 $settingsData.profiles.defaults.backgroundImage = (Get-Item -Path ".\images\terminal_bg.jpg").FullName
 # write json data back to settings.json
 $settingsData | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding utf8

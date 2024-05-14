@@ -10,3 +10,4 @@ if(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine){
 }
 #gsudo
 Import-Module 'gsudoModule'
+Import-Module 'PowershellGet'
