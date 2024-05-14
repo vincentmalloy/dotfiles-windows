@@ -16,6 +16,11 @@ function sudo() {
         start-process $args[0] -ArgumentList $args[1..$args.Length] -verb "runAs"
     }
 }
+
+# refresh path
+function refreshPath() {
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 # winget query if package is installed
 function installed($id) {
     winget list --source winget -q $id | Out-Null

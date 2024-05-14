@@ -1,6 +1,6 @@
-# remove microsoft store form winget sources
-# winget source remove msstore | Out-Null
-# install minimal git
+# # remove microsoft store form winget sources
+# # winget source remove msstore | Out-Null
+# # install minimal git
 # if(!(installed("Git.MinGit"))){
 #     Write-Output "Installing Git.MinGit"
 #     winget install --source winget --id Git.MinGit --silent --accept-package-agreements
@@ -24,6 +24,7 @@
 # if(!(installed("JanDeDobbeleer.OhMyPosh"))){
 #     Write-Output "Installing JanDeDobbeleer.OhMyPosh"
 #     winget install --source winget --id JanDeDobbeleer.OhMyPosh --silent --accept-package-agreements
+#     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 #     oh-my-posh font install RobotoMono
 # }
 # # install MiKTeX.MiKTeX
