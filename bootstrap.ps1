@@ -24,16 +24,18 @@ if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
     Add-AppxPackage -Path "$env:temp\winget.msixbundle" -ForceApplicationShutdown
     # remove temp file
     Remove-Item -Path "$env:temp\winget.msixbundle" -Recurse -Force
+    # refresh $path
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 # install minimal git
 if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Output "Installing Git.MinGit"
     winget install --source winget --id Git.MinGit --silent --accept-package-agreements
+    # refresh $path
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    # make git trust windows cert
+    git config --global http.sslBackend schannel
 }
-# refresh $path
-$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-# make git trust windows cert
-git config --global http.sslBackend schannel
 
 # clone dotfiles repo to $HOME folder
 if (!(Test-Path "$HOME\.dotfiles")) {
