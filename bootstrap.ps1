@@ -39,6 +39,9 @@ $prerequisiteInstallation = {
 
 Start-Process -Verb RunAs -FilePath "powershell" -ArgumentList "-NoProfile -Command $prerequisiteInstallation" -Wait
 
+# make git trust windows cert
+git config --global http.sslBackend schannel
+
 # clone dotfiles repo to $HOME folder
 if (!(Test-Path "$HOME\.dotfiles")) {
     Write-Output "Cloning dotfiles repo to $HOME folder"
