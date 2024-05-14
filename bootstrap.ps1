@@ -1,2 +1,3 @@
 Write-Host "hello, world!"
-Read-Host -Prompt "Press Enter to continue"
+Read-Host "Press Enter to continue"
+Write-Host "bye"
