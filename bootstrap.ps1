@@ -19,7 +19,7 @@ $prerequisiteInstallation = {
         | Select-Object browser_download_url | Select-Object -First 1
         # download first asset
         $wingetObject `
-        | ForEach-Object { Invoke-WebRequest -Uri $_.browser_download_url -UseBasicParsing -OutFile "$env:temp\winget.msixbundle" }
+        | ForEach-Object { (New-Object Net.WebClient).DownloadFile($_.browser_download_url, "$env:temp\winget.msixbundle") }
         # install msixbundle
         Add-AppxPackage -Path "$env:temp\winget.msixbundle" -ForceApplicationShutdown
         # remove temp file

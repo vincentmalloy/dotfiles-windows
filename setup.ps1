@@ -28,3 +28,4 @@ Write-Host "done" -ForeGroundColor "Green"
 Write-Host "configuring some additional Settings..."
 ./setup/additionalsettings.ps1
 Write-Host "--all done--" -ForeGroundColor "Green"
+Read-Host "Press any key to exit"
