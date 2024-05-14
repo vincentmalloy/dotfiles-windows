@@ -27,4 +27,5 @@ Set-Alias time Measure-Command
 Set-Alias l Get-ChildItem
 Set-Alias c Clear-Host
 Set-Alias u ubuntu
+Set-Alias e explorer
 

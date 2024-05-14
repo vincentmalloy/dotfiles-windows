@@ -30,5 +30,5 @@ Write-Host "Installing Software..."
 Write-Host "done" -ForeGroundColor "Green"
 Write-Host "configuring some additional Settings..."
 ./setup/additionalsettings.ps1
+./setup/wallpaper.ps1 (Get-Item -Path ".\images\desktop\desktop_right.jpg").FullName
 Write-Host "--all done--" -ForeGroundColor "Green"
-Read-Host "Press any key to exit"
