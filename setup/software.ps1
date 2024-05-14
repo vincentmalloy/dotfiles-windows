@@ -60,6 +60,11 @@ if(!(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine)){
 #     Write-Output "Installing Microsoft.WindowsTerminal.Preview"
 #     winget install --source winget --id Microsoft.WindowsTerminal.Preview --silent --accept-package-agreements
 # }
+# # install gerardog.gsudo
+# if(!(installed("gerardog.gsudo"))){
+#     Write-Output "Installing gerardog.gsudo"
+#     winget install --source winget --id gerardog.gsudo --silent --accept-package-agreements
+# }
 # install Microsoft.OpenSSH.Beta
 # if(!(installed("Microsoft.OpenSSH.Beta"))){
 #     Write-Output "Installing Microsoft.OpenSSH.Beta"
