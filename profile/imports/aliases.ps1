@@ -19,7 +19,7 @@ ${function:df} = { Set-Location ~\.dotfiles }
 # git alias function (without parameters it acts as git status)
 ${function:g} = { if ($args) { & git $args } else { & git status -sb} }
 ${function:ga} = { & git add $args }
-${function:gg} = { & git add .;git commit -m $args;git push}
+${function:gg} = { if ($args) { & git add .;git commit -m $args;git push} else { & git add .;git commit -m "update";git push } }
 
 # Missing Bash aliases
 Set-Alias time Measure-Command
