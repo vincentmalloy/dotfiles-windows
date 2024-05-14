@@ -18,7 +18,8 @@ function installed($id) {
 }
 # System Update - Update Windows and installed software
 function Update-System() {
-    Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    sudo winget update --all -s winget
     # choco upgrade all
 }
 

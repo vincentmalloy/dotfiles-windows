@@ -15,12 +15,10 @@ if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
     # install Microsoft.DesktopAppInstaller msixbundle from github
     $gitLatestReleaseApi = (Invoke-WebRequest -UseBasicParsing https://api.github.com/repos/microsoft/winget-cli/releases/latest).Content | ConvertFrom-Json
     $wingetObject = $gitLatestReleaseApi.assets `
-    | Where-Object { $_.name -match "Microsoft.DesktopAppInstaller_[\d.]*?.msixbundle" } `
+    | Where-Object { $_.name -match "Microsoft.DesktopAppInstaller_[a-zA-Z0-9]*?.msixbundle" } `
     | Select-Object browser_download_url | Select-Object -First 1
-    # download first asset
-    $wingetObject `
-    | ForEach-Object { (New-Object Net.WebClient).DownloadFile($_.browser_download_url, "$env:temp\winget.msixbundle") }
-    # install msixbundle
+    Write-Host "downloading $($wingetObject.browser_download_url)"
+    (New-Object Net.WebClient).DownloadFile($_.browser_download_url, "$env:temp\winget.msixbundle")
     Add-AppxPackage -Path "$env:temp\winget.msixbundle" -ForceApplicationShutdown
     # remove temp file
     Remove-Item -Path "$env:temp\winget.msixbundle" -Recurse -Force
