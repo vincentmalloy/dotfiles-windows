@@ -1,0 +1,18 @@
+[init]
+    defaultBranch = main
+[include]
+    path = ~/.gitconfig.local
+[core]
+	excludesFile = ~/.gitignore_global
+[alias]
+	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+    s = status -sb
+    last = log -1 HEAD --stat
+    c = commit -m
+    search = !git rev-list --all | xargs git grep -F
+    # list branches sorted by last modified
+    b = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"
+    # get a dad joke for mistyping git add
+    dad = !curl https://icanhazdadjoke.com/ && echo
+[http]
+	sslBackend = schannel
