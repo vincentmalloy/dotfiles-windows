@@ -25,3 +25,6 @@ Set-Alias time Measure-Command
 
 # misc
 Set-Alias l Get-ChildItem
+Set-Alias c Clear-Host
+Set-Alias u ubuntu
+
