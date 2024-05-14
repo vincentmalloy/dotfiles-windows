@@ -16,6 +16,13 @@ if (!(Test-Path $gitConfigLocalPath)) {
 "@ | Out-File $gitConfigLocalPath -Encoding utf8
 (Get-Item $gitConfigLocalPath).Attributes = (Get-Item $gitConfigLocalPath).Attributes -bor [System.IO.FileAttributes]::Hidden
 }
+# create .gitignore_global if it does not exist
+if (!(Test-Path "$env:USERPROFILE\.gitignore_global")) {
+    Write-Host "Creating .gitignore_global..."
+    (New-Object Net.WebClient).DownloadFile("https://www.gitignore.io/api/windows,visualstudio,visualstudiocode", "$env:USERPROFILE\.gitignore_global")
+    $gitIgnore = Get-Item "$env:USERPROFILE\.gitignore_global"
+    $gitIgnore.Attributes =  $gitIgnore.Attributes -bor [System.IO.FileAttributes]::Hidden
+}
 # setup wallpaper
 $monitors = Get-Monitor
 if ($monitors.Length -eq 3) {
