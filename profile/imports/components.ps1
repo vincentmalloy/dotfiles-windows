@@ -7,3 +7,4 @@ if(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine){
     Set-PSReadLineOption -PredictionSource History
     Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 }
+Import-Module 'gsudoModule'

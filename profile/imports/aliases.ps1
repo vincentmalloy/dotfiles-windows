@@ -28,4 +28,5 @@ Set-Alias l Get-ChildItem
 Set-Alias c Clear-Host
 Set-Alias u ubuntu
 Set-Alias e explorer
+Set-Alias sudo gsudo
 

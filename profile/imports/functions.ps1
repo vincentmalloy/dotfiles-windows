@@ -7,16 +7,6 @@ function Edit-Hosts { Invoke-Expression "sudo $(if($null -ne $env:EDITOR)  {$env
 function Edit-Profile { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $profile" }
 function Edit-Dotfiles  { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $env:USERPROFILE\.dotfiles" }
 
-# Sudo
-function sudo() {
-    if ($args.Length -eq 1) {
-        start-process $args[0] -verb "runAs"
-    }
-    if ($args.Length -gt 1) {
-        start-process $args[0] -ArgumentList $args[1..$args.Length] -verb "runAs"
-    }
-}
-
 # refresh path
 function refreshPath() {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

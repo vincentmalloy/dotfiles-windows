@@ -1,6 +1,6 @@
 # create gitconfig.local
 $gitConfigLocalPath = "$env:USERPROFILE\.gitconfig.local"
-if(!(Test-Path $gitConfigLocalPath)){
+if (!(Test-Path $gitConfigLocalPath)) {
     Write-Host "Creating gitconfig.local..."
     # ask user for full name
     $gitName = Read-Host "Enter your full name"
@@ -18,21 +18,37 @@ if(!(Test-Path $gitConfigLocalPath)){
 }
 # setup wallpaper
 $monitors = Get-Monitor
-if($monitors.Length -eq 3){
+if ($monitors.Length -eq 3) {
     $monitors | Select-Object -Index 0 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_left.jpg").FullName
     $monitors | Select-Object -Index 1 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_right.jpg").FullName
     $monitors | Select-Object -Index 2 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
-}else{
+}
+else {
     Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
 }
 # setup vs code terminal font
-Set-JsonData "$env:APPDATA\Code\User\settings.json" 'terminal.integrated.fontFamily' 'RobotoMono NFM'
+$vsCodeSettingsPath = "$env:APPDATA\Code\User\settings.json"
+$vsCodeSettingsData = Get-Content -Raw -Path $vsCodeSettingsPath | ConvertFrom-Json
+$vsCodeSettingsData | Add-Member -Name "terminal.integrated.fontFamily" -Value "RobotoMono NFM" -MemberType NoteProperty -Force
+$vsCodeSettingsData | ConvertTo-Json | Out-File $vsCodeSettingsPath -Encoding utf8
 
 # setup windows terminal settings
 $settingsPath = (Get-Item "C:\users\$env:UserName\AppData\Local\Packages\Microsoft.WindowsTerminalPreview_*\LocalState\settings.json" | Select-Object -ExpandProperty FullName)
 # get settings data
 $settingsData = Get-Content -Raw -Path $settingsPath | ConvertFrom-Json
 # set font face
+if(!(Get-Member -InputObject $settingsData -Name "profiles")){
+    $settingsData | Add-Member -Name "profiles" -Value @{} -MemberType NoteProperty
+}
+if(!(Get-Member -InputObject $settingsData.profiles -Name "defaults")){
+    $settingsData.profiles | Add-Member -Name "defaults" -Value @{} -MemberType NoteProperty
+}
+if(!(Get-Member -InputObject $settingsData.profiles.defaults -Name "font")){
+    $settingsData.profiles.defaults | Add-Member -Name "font" -Value @{} -MemberType NoteProperty
+}
+if(!(Get-Member -InputObject $settingsData.profiles.defaults.font -Name "face")){
+    $settingsData.profiles.defaults.font | Add-Member -Name "face" -Value "Cascadia Mono" -MemberType NoteProperty
+}
 $settingsData.profiles.defaults.font.face = "RobotoMono Nerd Font Mono"
 # set background image
 $settingsData.profiles.defaults.backgroundImage = (Get-Item -Path ".\images\terminal_bg.jpg").FullName
@@ -41,7 +57,7 @@ $settingsData | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding utf8
 
 # create shortcut for windows terminal quakemode in startup
 $shortcutPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Windows Terminal Quake Mode.lnk"
-if(!(Test-Path $shortcutPath)){
+if (!(Test-Path $shortcutPath)) {
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
