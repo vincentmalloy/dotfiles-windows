@@ -1,3 +1,12 @@
+# powershell modules
+if(!(Get-Module -ListAvailable PowerShellGet)){
+    Write-Output "Installing PowerShellGet"
+    Install-Module PowerShellGet -Force
+}
+if(!(Get-Module -ListAvailable -Name FP.SetWallpaper)){
+    Write-Output "Installing FP.SetWallpaper"
+    Install-Module -Name FP.SetWallpaper -Force
+}
 # # remove microsoft store form winget sources
 # # winget source remove msstore | Out-Null
 # # install minimal git

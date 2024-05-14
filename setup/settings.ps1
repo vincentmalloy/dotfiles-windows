@@ -11,7 +11,7 @@ Set-ItemProperty "HKCU:\Software\Policies\Microsoft\Windows\Explorer" "DisableSe
 ###############################################################################
 ### Explorer, Taskbar, and System Tray                                        #
 ###############################################################################
-Write-Host "Configuring Explorer, Taskbar, and System Tray..." -ForegroundColor "Yellow"
+# Write-Host "Configuring Explorer, Taskbar, and System Tray..." -ForegroundColor "Yellow"
 
 # Ensure necessary registry paths
 if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Type Folder | Out-Null}

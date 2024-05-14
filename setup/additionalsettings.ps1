@@ -16,11 +16,14 @@ if(!(Test-Path $gitConfigLocalPath)){
 "@ | Out-File $gitConfigLocalPath -Encoding utf8
 (Get-Item $gitConfigLocalPath).Attributes = (Get-Item $gitConfigLocalPath).Attributes -bor [System.IO.FileAttributes]::Hidden
 }
-# copy desktop images to pictures folder
-(Get-ChildItem -Path ".\images") | ForEach-Object {
-    $destination = "$env:USERPROFILE\Pictures\$($_.Name)"
-    Write-Host "copying $($_.Name) to $destination"
-    Copy-Item -Path $_.FullName -Destination $destination -Recurse -Force
+# setup wallpaper
+$monitors = Get-Monitor
+if($monitors.Length -eq 3){
+    $monitors | Select-Object -Index 0 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_left.jpg").FullName
+    $monitors | Select-Object -Index 1 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_right.jpg").FullName
+    $monitors | Select-Object -Index 2 | Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
+}else{
+    Set-Wallpaper -Path (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
 }
 # setup vs code terminal font
 Set-JsonData "$env:APPDATA\Code\User\settings.json" 'terminal.integrated.fontFamily' 'RobotoMono NFM'
@@ -32,7 +35,7 @@ $settingsData = Get-Content -Raw -Path $settingsPath | ConvertFrom-Json
 # set font face
 $settingsData.profiles.defaults.font.face = "RobotoMono Nerd Font Mono"
 # set background image
-$settingsData.profiles.defaults.backgroundImage = (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
+$settingsData.profiles.defaults.backgroundImage = (Get-Item -Path ".\images\terminal_bg.jpg").FullName
 # write json data back to settings.json
 $settingsData | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding utf8
 

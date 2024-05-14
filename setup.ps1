@@ -1,4 +1,4 @@
-Write-Host "Setting up dotfiles..."
+Write-Host "Setting up dotfiles...`n"
 Set-Location $HOME\.dotfiles
 # Get the ID and security principal of the current user account
 $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
@@ -6,12 +6,12 @@ $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)
 # Check to see if we are currently running "as Administrator"
 if(!$myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)){
     Write-Host "please run this script in a Powershell with elevated Privileges"
-    Read-Host "Press any key to exit"
+    Read-Host "Press [Return] key to exit"
     exit
 }
 Write-Host "symlinks"
-New-Item -Path $profile -ItemType SymbolicLink -Value profile\profile.ps1 -Force
-New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value profile\imports -Force
+New-Item -Path $profile -ItemType SymbolicLink -Value profile\profile.ps1 -Force | Out-Null
+New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value profile\imports -Force | Out-Null
 Get-ChildItem home -name | ForEach-Object -process {
     $link = New-Item -Path "$HOME\$_" -ItemType SymbolicLink -value "home\$_" -Force
     # if file name starts with ., it is a hidden file
@@ -19,6 +19,7 @@ Get-ChildItem home -name | ForEach-Object -process {
         $link.Attributes =  $link.Attributes -bor [System.IO.FileAttributes]::Hidden
     }
 }
+Write-Host "done" -ForeGroundColor "Green"
 Write-Host "Windows features..."
 ./setup/features.ps1
 Write-Host "done" -ForeGroundColor "Green"
@@ -30,5 +31,5 @@ Write-Host "Installing Software..."
 Write-Host "done" -ForeGroundColor "Green"
 Write-Host "configuring some additional Settings..."
 ./setup/additionalsettings.ps1
-./setup/wallpaper.ps1 (Get-Item -Path ".\images\desktop\desktop_right.jpg").FullName
-Write-Host "--all done--" -ForeGroundColor "Green"
+# ./setup/wallpaper.ps1 (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
+Write-Host "`n--all done--" -ForeGroundColor "Green"
