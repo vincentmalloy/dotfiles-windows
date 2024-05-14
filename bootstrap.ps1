@@ -26,12 +26,7 @@ $prerequisiteInstallation = {
         Remove-Item -Path "$env:temp\winget.msixbundle" -Recurse -Force
     }
     # install minimal git
-    function installed($id) {
-        winget list --source winget -q $id | Out-Null
-        if ($?) { return $true } else { return $false }
-    }
-
-    if (!(installed("Git.MinGit"))) {
+    if (!(Get-Command git -ErrorAction SilentlyContinue)) {
         Write-Output "Installing Git.MinGit"
         winget install --source winget --id Git.MinGit --silent --accept-package-agreements
     }
