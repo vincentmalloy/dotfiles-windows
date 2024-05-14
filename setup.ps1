@@ -1,4 +1,5 @@
 Write-Host "Setting up dotfiles..."
+Set-Location $HOME\.dotfiles
 # Get the ID and security principal of the current user account
 $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)

@@ -7,6 +7,8 @@ ${function:....} = { Set-Location ..\..\.. }
 ${function:.....} = { Set-Location ..\..\..\.. }
 ${function:......} = { Set-Location ..\..\..\..\.. }
 
+${function:ll} = { Get-ChildItem -Force }
+
 # Navigation Shortcuts
 ${function:cloud} = { Set-Location ~\Nextcloud }
 ${function:dt} = { Set-Location ~\Desktop }
@@ -15,3 +17,7 @@ ${function:dl} = { Set-Location ~\Downloads }
 
 # Missing Bash aliases
 Set-Alias time Measure-Command
+
+# misc
+Set-Alias g git
+Set-Alias l Get-ChildItem
