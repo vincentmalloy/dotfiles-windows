@@ -14,11 +14,12 @@ ${function:cloud} = { Set-Location ~\Nextcloud }
 ${function:dt} = { Set-Location ~\Desktop }
 ${function:docs} = { Set-Location ~\Documents }
 ${function:dl} = { Set-Location ~\Downloads }
+${function:df} = { Set-Location ~\.dotfiles }
 
 # git alias function (without parameters it acts as git status)
 ${function:g} = { if ($args) { & git $args } else { & git status -sb} }
 ${function:ga} = { & git add $args }
-${function:gc} = { & git commit -m $args }
+${function:gg} = { & git add .;git commit -m $args;git push}
 
 # Missing Bash aliases
 Set-Alias time Measure-Command
