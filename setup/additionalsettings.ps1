@@ -14,8 +14,8 @@ if(!(Test-Path $gitConfigLocalPath)){
 [init]
     templateDir = ~/.git_template
 "@ | Out-File $gitConfigLocalPath -Encoding utf8
-}
 (Get-Item $gitConfigLocalPath).Attributes = (Get-Item $gitConfigLocalPath).Attributes -bor [System.IO.FileAttributes]::Hidden
+}
 # copy desktop images to pictures folder
 $currentFolder = (Get-Item -Path ".\*\images\desktop").FullName
 Write-Host "current folder: $currentFolder"
