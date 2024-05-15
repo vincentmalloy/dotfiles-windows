@@ -18,9 +18,16 @@ function installed($id) {
 }
 # System Update - Update Windows and installed software
 function Update-System() {
+    Write-Host "checking for windows updates..."
     sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    Write-Host "done" -ForegroundColor Green
+    Write-Host "checking for software updates..."
     sudo winget update --all -s winget
+    Write-Host "done" -ForegroundColor Green
+    Write-Host "updating ubuntu packages..."
+    ubuntu run "sudo apt update && sudo apt upgrade -y"
     # choco upgrade all
+    Write-Host "all done!" -ForegroundColor Green
 }
 
 #set values in a json file
