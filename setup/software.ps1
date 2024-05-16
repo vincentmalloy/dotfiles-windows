@@ -1,76 +1,34 @@
-# powershell modules
-if(!(Get-Module -ListAvailable PowerShellGet)){
-    Write-Output "Installing PowerShellGet"
-    Install-Module PowerShellGet -Force
+
+$softwarePackageIds = @(
+    'Git.MinGit',
+    'KeePassXCTeam.KeePassXC',
+    'Microsoft.VisualStudioCode.Insiders',
+    'Nextcloud.NextcloudDesktop',
+    'JanDeDobbeleer.OhMyPosh',
+    '7zip.7zip',
+    'Mozilla.Firefox',
+    'Mozilla.Thunderbird',
+    'Helix.Helix',
+    'Microsoft.WindowsTerminal.Preview',
+    'gerardog.gsudo',
+    'Microsoft.OpenSSH.Beta',
+    'Microsoft.Sysinternals.PsTools',
+    'Valve.Steam'
+)
+$highest=0
+$softwarePackageIds | ForEach-Object {
+    if($_.Length -gt $highest){
+        $highest = $_.Length
+    }
 }
-if(!(Get-Module -ListAvailable -Name FP.SetWallpaper)){
-    Write-Output "Installing FP.SetWallpaper"
-    Install-Module -Name FP.SetWallpaper -Force -AcceptLicense
-}
-if(!(Get-Module -ListAvailable -Name PSWindowsUpdate)){
-    Write-Output "Installing PSWindowsUpdate"
-    Install-Module PSWindowsUpdate -Scope CurrentUser -Force
-}
-if(!(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine)){
-    Write-Output "Installing PSReadLine"
-    Install-Module PSReadLine -MinimumVersion  2.1.0 -Force
-}
-# # remove microsoft store form winget sources
-# # winget source remove msstore | Out-Null
-# install minimal git
-if(!(winget list -s winget Git.MinGit)){
-    Write-Output "Installing Git.MinGit"
-    winget install --source winget --id Git.MinGit --silent --accept-package-agreements
-}
-# install keepassXC
-if(!(winget list -s winget KeePassXCTeam.KeePassXC)){
-    Write-Output "Installing KeePassXCTeam.KeePassXC"
-    winget install --source winget --id KeePassXCTeam.KeePassXC --silent --accept-package-agreements
-}
-# install Microsoft.VisualStudioCode.Insiders
-if(!(winget list -s winget Microsoft.VisualStudioCode.Insiders)){
-    Write-Output "Installing Microsoft.VisualStudioCode.Insiders"
-    winget install --source winget --id Microsoft.VisualStudioCode.Insiders --silent --accept-package-agreements
-}
-# install Nextcloud.NextcloudDesktop
-if(!(winget list -s winget Nextcloud.NextcloudDesktop)){
-    Write-Output "Installing Nextcloud.NextcloudDesktop"
-    winget install --source winget --id Nextcloud.NextcloudDesktop --silent --accept-package-agreements
-}
-# install JanDeDobbeleer.OhMyPosh
-if(!(winget list -s winget JanDeDobbeleer.OhMyPosh)){
-    Write-Output "Installing JanDeDobbeleer.OhMyPosh"
-    winget install --source winget --id JanDeDobbeleer.OhMyPosh --silent --accept-package-agreements
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-    oh-my-posh font install RobotoMono
-}
-# install MiKTeX.MiKTeX
-# if(!(installed("MiKTeX.MiKTeX"))){
-#     echo "Installing MiKTeX.MiKTeX"
-#     winget install --id MiKTeX.MiKTeX --silent --accept-package-agreements
-# }
-# install Mozilla.Firefox
-if(!(winget list -s winget Mozilla.Firefox)){
-    Write-Output "Installing Mozilla.Firefox"
-    winget install --source winget --id Mozilla.Firefox --silent --accept-package-agreements
-}
-# install Helix.Helix
-if(!(winget list -s winget Helix.Helix)){
-    Write-Output "Installing Helix.Helix"
-    winget install --source winget --id Helix.Helix --silent --accept-package-agreements
-}
-# install Microsoft.WindowsTerminal.Preview
-if(!(winget list -s winget Microsoft.WindowsTerminal.Preview)){
-    Write-Output "Installing Microsoft.WindowsTerminal.Preview"
-    winget install --source winget --id Microsoft.WindowsTerminal.Preview --silent --accept-package-agreements
-}
-# install gerardog.gsudo
-if(!(winget list -s winget gerardog.gsudo)){
-    Write-Output "Installing gerardog.gsudo"
-    winget install --source winget --id gerardog.gsudo --silent --accept-package-agreements
-}
-# install Microsoft.OpenSSH.Beta
-if(!(winget list -s winget Microsoft.OpenSSH.Beta)){
-    Write-Output "Installing Microsoft.OpenSSH.Beta"
-    winget install --source winget --id Microsoft.OpenSSH.Beta --silent --accept-package-agreements
+# remove microsoft store form winget sources
+winget source remove msstore | Out-Null
+$softwarePackageIds | ForEach-Object {$i=1} {
+    Write-Host -NoNewLine $("`rChecking   (" + (('{0:d4}' -f $i) + " of " + ('{0:d4}' -f $softwarePackageIds.Length)) + ") $_" + (" " * ($highest - $_.Length)))
+    $isInstalled = (winget list --source winget --id $_)
+    if(!($isInstalled.Length -gt 4)){
+        Write-Host -NoNewLine $("`r" + "Installing (" + (('{0:d4}' -f $i) + " of " + ('{0:d4}' -f $softwarePackageIds.Length)) + (&{if($i -eq $softwarePackageIds.Length) {"`n"}}) + ") $_" + (" " * ($highest - $_.Length)))
+        winget install --source winget --id $_ --silent --accept-package-agreements | Out-Null
+    }
+    $i++
 }

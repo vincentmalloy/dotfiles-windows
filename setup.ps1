@@ -12,6 +12,7 @@ if(!$myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Admini
 Write-Host "symlinks"
 New-Item -Path $profile -ItemType SymbolicLink -Value profile\profile.ps1 -Force | Out-Null
 New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value profile\imports -Force | Out-Null
+
 function Create-Symlinks {
     param(
         [string]$source,
@@ -37,21 +38,25 @@ function Create-Symlinks {
         }
     }
 }
+
 Create-Symlinks -source "home" -destination $HOME
 Create-Symlinks -source "appdata" -destination $env:APPDATA
 Create-Symlinks -source "appdata" -destination $env:LOCALAPPDATA
 
-Write-Host "done" -ForeGroundColor "Green"
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Windows features..."
 ./setup/features.ps1
-Write-Host "done" -ForeGroundColor "Green"
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Windows settings..."
 ./setup/settings.ps1
-Write-Host "done" -ForeGroundColor "Green"
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
+Write-Host "Poweshell Modules..."
+./setup/modules.ps1
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Installing Software..."
 ./setup/software.ps1
-Write-Host "done" -ForeGroundColor "Green"
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "configuring some additional Settings..."
 ./setup/additionalsettings.ps1
-# ./setup/wallpaper.ps1 (Get-Item -Path ".\images\desktop\desktop_mid.jpg").FullName
+Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "`n--all done--" -ForeGroundColor "Green"
