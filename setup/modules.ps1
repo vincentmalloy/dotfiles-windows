@@ -19,3 +19,7 @@ if(!(Get-Module -ListAvailable -Name Get-ChildItemColor)){
     Write-Output "installing Get-ChildItemColor"
     Install-Module Get-ChildItemColor -Force -AcceptLicense
 }
+if(!(Get-Module -ListAvailable -Name PendingReboot)){
+    Write-Output "installing PendingReboot"
+    Install-Module PendingReboot -Force -AcceptLicense
+}

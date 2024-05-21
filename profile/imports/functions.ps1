@@ -33,16 +33,15 @@ function Update-System() {
     }
     Write-Host "done" -ForegroundColor Green
     Write-Host "checking for software updates..."
-    if($isAdmin){
-        winget update --all -s winget
-    }else{
-        sudo winget update --all -s winget
-    }
+    winget update --all -s winget
     Write-Host "done" -ForegroundColor Green
     Write-Host "updating ubuntu packages..."
     ubuntu run "sudo apt update && sudo apt upgrade -y"
     # choco upgrade all
     Write-Host "all done!" -ForegroundColor Green
+    if(Test-PendingReboot -SkipConfigurationManagerClientCheck | Select -ExpandProperty IsRebootPending){
+        Write-Host "There is a reboot pending, reboot as soon as possible!" -ForegroundColor Red
+    }
 }
 function Is-NetworkAvailable(){
     $networkavailable = $false;
@@ -171,36 +170,8 @@ function caffeine(){
     $wsh = New-Object -ComObject WScript.Shell
     $StartDate = Get-Date
     while (1) {
-        $EndDate = Get-Date
-
-        $Duration = New-TimeSpan -Start $StartDate -End $EndDate
-
-        $Day = switch ($Duration.Days) {
-            0 { $null; break }
-            1 { " {0} Day," -f $Duration.Days; break }
-            Default {" {0} Days," -f $Duration.Days}
-        }
-
-        $Hour = switch ($Duration.Hours) {
-            0 { $null; break }
-            1 { " {0} Hour," -f $Duration.Hours; break }
-            Default { " {0} Hours," -f $Duration.Hours }
-        }
-
-        $Minute = switch ($Duration.Minutes) {
-            0 { $null; break }
-            1 { " {0} Minute," -f $Duration.Minutes; break }
-            Default { " {0} Minutes," -f $Duration.Minutes }
-        }
-
-        $Second = switch ($Duration.Seconds) {
-            # 0 { $null; break }
-            1 { " {0} Second" -f $Duration.Seconds; break }
-            Default { " {0} Seconds" -f $Duration.Seconds }
-        }
-
-        $span = "$Day$Hour$Minute$Second"
-
+        $Duration = New-TimeSpan -Start $StartDate -End $(Get-Date)
+        $span = Format-TimeSpan $Duration
         # Send Shift+F15 - this is the least intrusive key combination I can think of and is also used as default by:
         # http://www.zhornsoftware.co.uk/caffeine/
         $wsh.SendKeys('+{F15}')
@@ -209,9 +180,109 @@ function caffeine(){
     }
 }
 
+function Format-TimeSpan($Duration, $short = $false){
+        $span=""
+        $Day = switch ($Duration.Days) {
+            0 { $null; break }
+            1 { "{0} Day" -f $Duration.Days; break }
+            Default {"{0} Days" -f $Duration.Days}
+        }
+        $span+="$Day"
+        if($short -and $Day){
+            return $Day
+        }
+
+        $Hour = switch ($Duration.Hours) {
+            0 { $null; break }
+            1 { "{0} Hour" -f $Duration.Hours; break }
+            Default { "{0} Hours" -f $Duration.Hours }
+        }
+        if($short -and $Hour){
+            return $Hour
+        }
+        if($span -and $Hour){
+            $span+=", "
+        }
+
+        $Minute = switch ($Duration.Minutes) {
+            0 { $null; break }
+            1 { "{0} Minute" -f $Duration.Minutes; break }
+            Default { "{0} Minutes" -f $Duration.Minutes }
+        }
+        $span+="$Minute"
+        if($short -and $Minute){
+            return $Minute
+        }
+        if($span -and $Minute){
+            $span+=", "
+        }
+
+        $Second = switch ($Duration.Seconds) {
+            # 0 { $null; break }
+            1 { "{0} Second" -f $Duration.Seconds; break }
+            Default { "{0} Seconds" -f $Duration.Seconds }
+        }
+        $span+="$Second"
+        if($short -and $Second){
+            return $Second
+        }
+
+        return $span
+}
+
+function Get-Uptime {
+        Get-WmiObject win32_operatingsystem | select @{LABEL='LastBootUpTime';
+        EXPRESSION={$_.ConverttoDateTime($_.lastbootuptime)}}
+}
+
+function uptime {
+    $uptime = New-TimeSpan -Start $(Get-Uptime | Select -ExpandProperty LastBootUpTime) -End $(Get-Date)
+    return "last Boot-up: $(Format-TimeSpan $uptime $true) ago"
+}
+
+Function Get-PublicIP {
+ (Invoke-WebRequest http://ifconfig.me/ip ).Content
+}
+
 #output a whale
 function whale(){
-    Get-Content ~\.dotfiles\ascii-art.txt | ForEach-Object -Process {
-        Write-Host $_.PadRight((Get-Content ~\.dotfiles\ascii-art.txt | Measure -Property length -Maximum).Maximum, " ").PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+    $infos = @(
+        "Hello $Env:UserName!"
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        ""
+        "$(uptime)"
+        ""
+    )
+    $warnings = @()
+    if(Test-PendingReboot -SkipConfigurationManagerClientCheck | Select -ExpandProperty IsRebootPending){
+        $warnings += "There is a reboot pending, reboot as soon as possible!"
     }
+    $i=0
+    $infoLines = $infos + $warnings
+    $artContent = Get-Content ~\.dotfiles\ascii-art.txt
+    # $infoLines = @("Welcome!") + @(" ") * ($artContent.Length-$infoLines.Length - 1) + $infoLines
+    $maxArtLength = ($artContent | Measure -Property length -Maximum).Maximum
+    $maxInfoLength = ($infoLines | Measure -Property length -Maximum).Maximum
+    $maxLineLength = $maxInfoLength + $maxArtLength
+    $lineMaxLength = $Host.UI.RawUI.WindowSize.Width
+    $artContent | ForEach-Object -Process {
+        if($i -lt $infoLines.Length){
+            $outputLine = $infoLines[$i].PadRight($lineMaxLength - $maxArtLength, " ")
+            if($i -ge $infos.Length){
+                $outputLine = "$("$([char]0x1b)[91m")$outputLine$("$([char]0x1b)[0m")"
+            }
+            $output = $outputLine + $_.padRight($maxArtLength)
+        }else{
+            $output = $_.padRight($maxArtLength).PadLeft($lineMaxLength, " ")
+        }
+        Write-Host $output
+        $i++
+    }
+    Write-Host "`n"
 }
