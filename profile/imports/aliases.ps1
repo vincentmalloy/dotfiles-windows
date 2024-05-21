@@ -20,7 +20,7 @@ ${function:df} = { Set-Location ~\.dotfiles }
 ${function:g} = { if ($args) { & git $args } else { & git status -sb} }
 ${function:ga} = { & git add $args }
 ${function:gg} = { if ($args) { & git add .;git commit -m $args;git push} else { & git add .;git commit -m "update";git push } }
-${function:hush} = { if ($args) { & psshutdown -d -t $args} else { & psshutdown -d -t 0 } }
+${function:hush} = { if ($args) { & psshutdown -d -t $args | Out-Null} else { & psshutdown -d -t 0 | Out-Null} }
 
 # Missing Bash aliases
 Set-Alias time Measure-Command
