@@ -18,11 +18,26 @@ function installed($id) {
 }
 # System Update - Update Windows and installed software
 function Update-System() {
+    $isAdmin = $false
+    $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)
+    # Check to see if we are currently running "as Administrator"
+    if($myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)){
+        $isAdmin = $true
+    }
     Write-Host "checking for windows updates..."
-    sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    if($isAdmin){
+        Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    }else{
+        sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    }
     Write-Host "done" -ForegroundColor Green
     Write-Host "checking for software updates..."
-    sudo winget update --all -s winget
+    if($isAdmin){
+        winget update --all -s winget
+    }else{
+        sudo winget update --all -s winget
+    }
     Write-Host "done" -ForegroundColor Green
     Write-Host "updating ubuntu packages..."
     ubuntu run "sudo apt update && sudo apt upgrade -y"
