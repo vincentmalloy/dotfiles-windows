@@ -7,7 +7,7 @@ ${function:....} = { Set-Location ..\..\.. }
 ${function:.....} = { Set-Location ..\..\..\.. }
 ${function:......} = { Set-Location ..\..\..\..\.. }
 
-${function:ll} = { Get-ChildItem -Force }
+${function:ll} = { Get-ChildItemColor -Force }
 
 # Navigation Shortcuts
 ${function:cloud} = { Set-Location ~\Nextcloud }
@@ -26,7 +26,7 @@ ${function:hush} = { if ($args) { & psshutdown -d -t $args} else { & psshutdown 
 Set-Alias time Measure-Command
 
 # misc
-Set-Alias l Get-ChildItem
+Set-Alias l Get-ChildItemColor
 Set-Alias c Clear-Host
 Set-Alias u ubuntu
 Set-Alias e explorer

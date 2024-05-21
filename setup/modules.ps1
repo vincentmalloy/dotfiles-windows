@@ -15,3 +15,7 @@ if(!(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine)){
     Write-Output "Installing PSReadLine"
     Install-Module PSReadLine -MinimumVersion  2.1.0 -Force
 }
+if(!(Get-Module -ListAvailable -Name Get-ChildItemColor)){
+    Write-Output "installing Get-ChildItemColor"
+    Install-Module Get-ChildItemColor -Force -AcceptLicense
+}

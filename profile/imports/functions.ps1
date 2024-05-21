@@ -161,3 +161,57 @@ function ConvertNextcloudDocumentsToPdf(){
     }
 }
 
+function Get-Emoji($hex){
+    $EmojiIcon = [System.Convert]::toInt32($hex,16)
+    return [System.Char]::ConvertFromUtf32($EmojiIcon)
+}
+
+function caffeine(){
+    Write-Host  "$(Get-Emoji 2615) staying awake... ([ctrl] + [c] to stop)`n"
+    $wsh = New-Object -ComObject WScript.Shell
+    $StartDate = Get-Date
+    while (1) {
+        $EndDate = Get-Date
+
+        $Duration = New-TimeSpan -Start $StartDate -End $EndDate
+
+        $Day = switch ($Duration.Days) {
+            0 { $null; break }
+            1 { " {0} Day," -f $Duration.Days; break }
+            Default {" {0} Days," -f $Duration.Days}
+        }
+
+        $Hour = switch ($Duration.Hours) {
+            0 { $null; break }
+            1 { " {0} Hour," -f $Duration.Hours; break }
+            Default { " {0} Hours," -f $Duration.Hours }
+        }
+
+        $Minute = switch ($Duration.Minutes) {
+            0 { $null; break }
+            1 { " {0} Minute," -f $Duration.Minutes; break }
+            Default { " {0} Minutes," -f $Duration.Minutes }
+        }
+
+        $Second = switch ($Duration.Seconds) {
+            # 0 { $null; break }
+            1 { " {0} Second" -f $Duration.Seconds; break }
+            Default { " {0} Seconds" -f $Duration.Seconds }
+        }
+
+        $span = "$Day$Hour$Minute$Second"
+
+        # Send Shift+F15 - this is the least intrusive key combination I can think of and is also used as default by:
+        # http://www.zhornsoftware.co.uk/caffeine/
+        $wsh.SendKeys('+{F15}')
+        Write-Host "`r$(Get-Emoji 0001F971) I have been awake for$span".PadRight($Host.UI.RawUI.WindowSize.Width, " ") -NoNewline
+        Start-Sleep -seconds 59
+    }
+}
+
+#output a whale
+function whale(){
+    Get-Content ~\.dotfiles\ascii-art.txt | ForEach-Object -Process {
+        Write-Host $_.PadRight((Get-Content ~\.dotfiles\ascii-art.txt | Measure -Property length -Maximum).Maximum, " ").PadLeft($Host.UI.RawUI.WindowSize.Width, " ")
+    }
+}
