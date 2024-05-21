@@ -44,7 +44,13 @@ function Update-System() {
     # choco upgrade all
     Write-Host "all done!" -ForegroundColor Green
 }
-
+function Is-NetworkAvailable(){
+    $networkavailable = $false;
+    foreach ($adapter in Get-NetAdapter){
+        if ($adapter.status -eq "Up"){$networkavailable = $true; break;}
+    }
+    return $networkavailable
+}
 #set values in a json file
 function Set-JsonData{
     param (

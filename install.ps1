@@ -38,7 +38,7 @@ if (!(Get-Command git -ErrorAction SilentlyContinue)) {
 # clone dotfiles repo to $HOME folder
 if (!(Test-Path "$HOME\.dotfiles")) {
     Write-Output "Cloning dotfiles repo to $HOME folder"
-    git clone "https://github.com/$dotfilesUser/dotfiles-windows.git" "$HOME\.dotfiles"
+    git clone --recurse-submodules "https://github.com/$dotfilesUser/dotfiles-windows.git" "$HOME\.dotfiles"
     # hide .dotfiles folder
     $dotfilesFolder = Get-Item "$HOME\.dotfiles"
     $dotfilesFolder.Attributes = $dotfilesFolder.Attributes -bor [System.IO.FileAttributes]::Hidden
