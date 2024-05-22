@@ -14,13 +14,13 @@ function Show-Data($data,$positionX=0,$positionY=0)
     return
 }
 
-function Collect-Art
+function Get-Art
 {
     $data=Get-Content "$PSScriptRoot\ascii-art.txt"
     return $data+=""
 }
 
-function Collect-Memos
+function Get-Memos
 {
     $Path = "~/Memos.csv"
     if(Test-Path $Path -pathType leaf){
@@ -43,7 +43,7 @@ function Color-String($color,$string)
     return "$("$([char]0x1b)[$($color)m")$string$("$([char]0x1b)[0m")"
 }
 
-function Collect-Messages
+function Get-Messages
 {
     $data = @(
         "$(Get-Emoji "1F44B") Hello $Env:UserName!"
@@ -53,7 +53,7 @@ function Collect-Messages
     return $data
 }
 
-function Collect-Warnings
+function Get-Warnings
 {
     $data=@(
         "$(Get-Emoji "26A0")  Warnings:"
@@ -69,10 +69,10 @@ function Collect-Warnings
 
 function Show-Whalecome
 {
-    $messagesData = Collect-Messages
-    $warningsData = Collect-Warnings
-    $memosData = Collect-Memos
-    $artData = Collect-Art
+    $messagesData = Get-Messages
+    $warningsData = Get-Warnings
+    $memosData = Get-Memos
+    $artData = Get-Art
     $dataLength = ($messagesData, $warningsData, $memosData, $artData | Measure-Object -Property length -Maximum).Maximum
     $offsetX = 0
     $messagesData, $warningsData, $memosData, $artData | ForEach-Object -process {
