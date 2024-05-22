@@ -5,30 +5,31 @@ function touch($file) { "" | Out-File $file -Encoding ASCII }
 # Common Editing needs
 function Edit-Hosts { Invoke-Expression "sudo $(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $env:windir\system32\drivers\etc\hosts" }
 function Edit-Profile { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $profile" }
-function Edit-Dotfiles  { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $env:USERPROFILE\.dotfiles" }
+function Edit-Dotfiles { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $env:USERPROFILE\.dotfiles" }
 
 # refresh path
 function refreshPath() {
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 # winget query if package is installed
 function installed($id) {
     winget list --source winget -q $id | Out-Null
-    if ($?) {  return $true } else { return $false }
+    if ($?) { return $true } else { return $false }
 }
 # System Update - Update Windows and installed software
 function Update-System() {
     $isAdmin = $false
-    $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
-    $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)
+    $myIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $myPrincipal = new-object System.Security.Principal.WindowsPrincipal($myIdentity)
     # Check to see if we are currently running "as Administrator"
-    if($myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)){
+    if ($myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) {
         $isAdmin = $true
     }
     Write-Host "checking for windows updates..."
-    if($isAdmin){
+    if ($isAdmin) {
         Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
-    }else{
+    }
+    else {
         sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
     }
     Write-Host "done" -ForegroundColor Green
@@ -39,19 +40,19 @@ function Update-System() {
     ubuntu run "sudo apt update && sudo apt upgrade -y"
     # choco upgrade all
     Write-Host "all done!" -ForegroundColor Green
-    if(Test-PendingReboot -SkipConfigurationManagerClientCheck | Select -ExpandProperty IsRebootPending){
+    if (Test-PendingReboot -SkipConfigurationManagerClientCheck | Select-Object -ExpandProperty IsRebootPending) {
         Write-Host "There is a reboot pending, reboot as soon as possible!" -ForegroundColor Red
     }
 }
-function Is-NetworkAvailable(){
+function Is-NetworkAvailable() {
     $networkavailable = $false;
-    foreach ($adapter in Get-NetAdapter){
-        if ($adapter.status -eq "Up"){$networkavailable = $true; break;}
+    foreach ($adapter in Get-NetAdapter) {
+        if ($adapter.status -eq "Up") { $networkavailable = $true; break; }
     }
     return $networkavailable
 }
 #set values in a json file
-function Set-JsonData{
+function Set-JsonData {
     param (
         $path,
         $setting,
@@ -59,8 +60,8 @@ function Set-JsonData{
     )
     
     $data = Get-Content -Raw -Path $path -ErrorAction silentlycontinue | ConvertFrom-Json
-    if($data){
-        if($data.$setting) {
+    if ($data) {
+        if ($data.$setting) {
             $data.PSObject.Properties.Remove($setting)
         }
         $data | Add-Member -Name $setting -Value "$value" -MemberType NoteProperty
@@ -76,7 +77,8 @@ function ConvertToPdf($files, $outFile) {
         $firstFile = $files[0] 
         if ($firstFile.FullName) { $firstFile = $firstFile.FullName }
         $outFile = $firstFile.Substring(0, $firstFile.LastIndexOf(".")) + ".pdf"
-    } else {
+    }
+    else {
         if (![System.IO.Path]::IsPathRooted($outFile)) {
             $outFile = [System.IO.Path]::Combine((Get-Location).Path, $outFile)
         }
@@ -91,22 +93,22 @@ function ConvertToPdf($files, $outFile) {
 
         $script:_pageIndex = 0
         $doc.add_PrintPage({
-            param($sender, [System.Drawing.Printing.PrintPageEventArgs] $a)
-            $file = $files[$script:_pageIndex]
-            if ($file.FullName) {
-                $file = $file.FullName
-            }
-            $script:_pageIndex = $script:_pageIndex + 1
+                param($sender, [System.Drawing.Printing.PrintPageEventArgs] $a)
+                $file = $files[$script:_pageIndex]
+                if ($file.FullName) {
+                    $file = $file.FullName
+                }
+                $script:_pageIndex = $script:_pageIndex + 1
 
-            try {
-                $image = [System.Drawing.Image]::FromFile($file)
-                $a.Graphics.DrawImage($image, $a.PageBounds)
-                $a.HasMorePages = $script:_pageIndex -lt $files.Count
-            }
-            finally {
-                $image.Dispose()
-            }
-        })
+                try {
+                    $image = [System.Drawing.Image]::FromFile($file)
+                    $a.Graphics.DrawImage($image, $a.PageBounds)
+                    $a.HasMorePages = $script:_pageIndex -lt $files.Count
+                }
+                finally {
+                    $image.Dispose()
+                }
+            })
 
         $doc.PrintController = [System.Drawing.Printing.StandardPrintController]::new()
 
@@ -118,7 +120,7 @@ function ConvertToPdf($files, $outFile) {
     }
 }
 
-function ConvertNextcloudDocumentsToPdf(){
+function ConvertNextcloudDocumentsToPdf() {
     $files = Get-ChildItem -Path $env:USERPROFILE\Nextcloud\Documents -Recurse -Include *.docx, *.doc, *.odt, *.jpeg, *.jpg, *.png, *.bmp, *.tiff, *.tif
     $files | ForEach-Object {
         # get the file dorectory path
@@ -160,84 +162,96 @@ function ConvertNextcloudDocumentsToPdf(){
     }
 }
 
-function Get-Emoji($hex){
-    $EmojiIcon = [System.Convert]::toInt32($hex,16)
+function Get-Emoji($hex) {
+    $EmojiIcon = [System.Convert]::toInt32($hex, 16)
     return [System.Char]::ConvertFromUtf32($EmojiIcon)
 }
 
-function caffeine(){
+function caffeine() {
     Write-Host  "$(Get-Emoji 2615) staying awake... ([ctrl] + [c] to stop)`n"
     $wsh = New-Object -ComObject WScript.Shell
     $StartDate = Get-Date
     while (1) {
         $Duration = New-TimeSpan -Start $StartDate -End $(Get-Date)
-        $span = Format-TimeSpan $Duration
+        $span = Format-TimeSpan $Duration "m"
         # Send Shift+F15 - this is the least intrusive key combination I can think of and is also used as default by:
         # http://www.zhornsoftware.co.uk/caffeine/
         $wsh.SendKeys('+{F15}')
-        Write-Host "`r$(Get-Emoji 0001F971) I have been awake for $span".PadRight($Host.UI.RawUI.WindowSize.Width, " ") -NoNewline
+        if ($span) {
+            Write-Host "`r$(Get-Emoji 0001F971) I have been awake for $span".PadRight($Host.UI.RawUI.WindowSize.Width, " ") -NoNewline
+        }
         Start-Sleep -seconds 59
     }
 }
 
-function Format-TimeSpan($Duration, $short = $false){
-        $span=""
-        $Day = switch ($Duration.Days) {
-            0 { $null; break }
-            1 { "{0} Day" -f $Duration.Days; break }
-            Default {"{0} Days" -f $Duration.Days}
-        }
-        $span+="$Day"
-        if($short -and $Day){
-            return $Day
-        }
-
-        $Hour = switch ($Duration.Hours) {
-            0 { $null; break }
-            1 { "{0} Hour" -f $Duration.Hours; break }
-            Default { "{0} Hours" -f $Duration.Hours }
-        }
-        if($short -and $Hour){
-            return $Hour
-        }
-        if($span -and $Hour){
-            $span+=", "
-        }
-
-        $Minute = switch ($Duration.Minutes) {
-            0 { $null; break }
-            1 { "{0} Minute" -f $Duration.Minutes; break }
-            Default { "{0} Minutes" -f $Duration.Minutes }
-        }
-        $span+="$Minute"
-        if($short -and $Minute){
-            return $Minute
-        }
-        if($span -and $Minute){
-            $span+=", "
-        }
-
-        $Second = switch ($Duration.Seconds) {
-            # 0 { $null; break }
-            1 { "{0} Second" -f $Duration.Seconds; break }
-            Default { "{0} Seconds" -f $Duration.Seconds }
-        }
-        $span+="$Second"
-        if($short -and $Second){
-            return $Second
-        }
-
+function Format-TimeSpan($Duration, $unit = "s", $short = $false ) {
+    $span = ""
+    $Day = switch ($Duration.Days) {
+        0 { $null; break }
+        1 { "{0} Day" -f $Duration.Days; break }
+        Default { "{0} Days" -f $Duration.Days }
+    }
+    if (($short -and $Day)) {
+        return $Day
+    }
+    $span += "$Day"
+    if ($unit -eq "d") {
         return $span
+    }
+    $Hour = switch ($Duration.Hours) {
+        0 { $null; break }
+        1 { "{0} Hour" -f $Duration.Hours; break }
+        Default { "{0} Hours" -f $Duration.Hours }
+    }
+    if ($short -and $Hour) {
+        return $Hour
+    }
+    if ($span -and $Hour) {
+        $span += ", "
+    }
+    $span += "$Hour"
+    if ($unit -eq "h") {
+        return $span
+    }
+    $Minute = switch ($Duration.Minutes) {
+        0 { $null; break }
+        1 { "{0} Minute" -f $Duration.Minutes; break }
+        Default { "{0} Minutes" -f $Duration.Minutes }
+    }
+    if ($short -and $Minute) {
+        return $Minute
+    }
+    if ($span -and $Minute) {
+        $span += ", "
+    }
+    $span += "$Minute"
+    if ($unit -eq "m") {
+        return $span
+    }
+    $Second = switch ($Duration.Seconds) {
+        # 0 { $null; break }
+        1 { "{0} Second" -f $Duration.Seconds; break }
+        Default { "{0} Seconds" -f $Duration.Seconds }
+    }
+    if ($short -and $Second) {
+        return $Second
+    }
+    if ($span -and $Second) {
+        $span += " and "
+    }
+    $span += "$Second"
+    return $span
 }
 
 function Get-Uptime {
-        Get-WmiObject win32_operatingsystem | select @{LABEL='LastBootUpTime';
-        EXPRESSION={$_.ConverttoDateTime($_.lastbootuptime)}}
+    Get-WmiObject win32_operatingsystem | Select-Object @{LABEL = 'LastBootUpTime';
+        EXPRESSION                                              = { $_.ConverttoDateTime($_.lastbootuptime) }
+    }
 }
 
 function uptime {
-    $uptime = New-TimeSpan -Start $(Get-Uptime | Select -ExpandProperty LastBootUpTime) -End $(Get-Date)
-    return "last Boot-up was $(Format-TimeSpan $uptime $true) ago"
+    $uptime = New-TimeSpan -Start $(Get-Uptime | Select-Object -ExpandProperty LastBootUpTime) -End $(Get-Date)
+    return "last Boot-up was $(Format-TimeSpan $uptime "s" $true) ago"
 }
 
 Function Get-PublicIP {

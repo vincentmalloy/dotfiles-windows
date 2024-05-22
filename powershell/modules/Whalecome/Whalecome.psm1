@@ -43,10 +43,18 @@ function Get-Messages {
         "$(Get-Emoji "1F44B") Hello $Env:UserName!"
         ""
         "Today is $((Get-Date).ToString((Get-Culture).DateTimeFormat.LongDatePattern))"
+        ""
         "$(uptime)"
+        ""
     )
+    $data += "Free Disk Space:"
+    $data += ""
+    (Get-CimInstance -Class Win32_LogicalDisk | Select-Object -Property DeviceID, VolumeName, @{Label='FreeSpace (Gb)'; expression={($_.FreeSpace/1GB).ToString('F2')}},@{Label='Total (Gb)'; expression={($_.Size/1GB).ToString('F2')}},@{label='FreePercent'; expression={[Math]::Round(($_.freespace / $_.size) * 100, 2)}}) | ForEach-Object -process {
+            $data += "$($_.VolumeName.PadRight(8," ")) ($($_.DeviceID)) $($_."FreeSpace (Gb)".PadLeft(8," ")) GB ($($_.FreePercent)%)"    
+    }
     return $data
 }
+
 
 function Get-Warnings {
     $data = @(
@@ -55,6 +63,12 @@ function Get-Warnings {
     )
     if (Test-PendingReboot -SkipConfigurationManagerClientCheck | Select-Object -ExpandProperty IsRebootPending) {
         $data += "$(Get-Emoji "2757") There is a reboot pending, reboot as soon as possible!"
+    }
+    $psDrive = Get-PSDrive "C"
+    $spaceTotal = $psDrive.Used + $psDrive.Free
+    $percentageUsed = [math]::Round(($psDrive.Used / $spaceTotal)*100)
+    if($percentageUsed -gt 85){
+        $data += "$(Get-Emoji "2757") System Drive C: is almost Full! ($percentageUsed % - $($psDrive.Used) of $spaceTotal GB)"
     }
     if ($data.Length -le 2) {
         $data += "$(Get-Emoji "2705") All is well!"
