@@ -67,69 +67,7 @@ function Set-JsonData{
     }
     $data | ConvertTo-Json | Out-File $path -Encoding utf8
 }
-#write a Memo to file
-function Create-Memo([string]$text)
-{
-    $Time = (Get-Date).ToString([System.Globalization.CultureInfo]::GetCultureInfo(1031).DateTimeFormat.ShortDatePattern)
-    $Memo = New-Object -TypeName PSObject -Property @{
-        Time = "$Time"
-        Text = "$text"
-    }
-    return $Memo
-}
-function Add-Memo([string]$text = "")
-{
-    if ($text -eq "" ) { $text = Read-Host "Enter the text to memorize" }
 
-	$Path = "~/Memos.csv"
-
-	Create-Memo $text | Export-Csv -Path $Path -Append -Force
-
-	Write-Output "$(Get-Emoji "2705") saved to $Path"
-	return
-}
-
-function List-Memos
-{
-    $Path = "~/Memos.csv"
-    if(Test-Path $Path -pathType leaf){
-        $Memos = Import-Csv -Path $Path | Select-Object Time, Text
-    }else{
-        Write-Host "no Memos saved yet"
-        return
-    }
-    $i=0
-    foreach($Row in $Memos){
-        $Time = $Row.Time
-		$Text = $Row.Text
-        Write-Host "$($i.ToString().PadRight(3," ")) $Time  $Text"
-        $i++
-    }
-	return
-}
-function Remove-Memo([int]$id)
-{
-    $Path = "~/Memos.csv"
-    if(Test-Path $Path -pathType leaf){
-        $Memos = Import-Csv -Path $Path | Select-Object Time, Text
-        $i=0;
-        $newMemos = @()
-        foreach($Memo in $Memos){
-            if(-not($i -eq $id)){
-                $newMemos += $Memo
-            }
-            $i++
-        }
-        if($newMemos.Length -gt 0){
-            $newMemos | Select-Object Time, Text | Export-Csv -Path $Path
-        }else{
-            Remove-Item -Path $Path
-        }
-    }else{
-        Write-Host "no Memos saved yet"
-    }
-	return
-}
 #convert files to pdf
 function ConvertToPdf($files, $outFile) {
     Add-Type -AssemblyName System.Drawing
@@ -299,7 +237,7 @@ function Get-Uptime {
 
 function uptime {
     $uptime = New-TimeSpan -Start $(Get-Uptime | Select -ExpandProperty LastBootUpTime) -End $(Get-Date)
-    return "last Boot-up: $(Format-TimeSpan $uptime $true) ago"
+    return "last Boot-up was $(Format-TimeSpan $uptime $true) ago"
 }
 
 Function Get-PublicIP {
