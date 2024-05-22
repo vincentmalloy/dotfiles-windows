@@ -6,6 +6,6 @@ function Set-Environment([String] $variable, [String] $value) {
     Invoke-Expression "`$env:${variable} = `"$value`""
 }
 
-# Make helix the default editor
-Set-Environment "EDITOR" "hx"
+# Make code the default editor
+Set-Environment "EDITOR" "code-insiders"
 Set-Environment "GIT_EDITOR" $Env:EDITOR

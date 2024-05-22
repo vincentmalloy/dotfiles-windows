@@ -67,7 +67,69 @@ function Set-JsonData{
     }
     $data | ConvertTo-Json | Out-File $path -Encoding utf8
 }
+#write a Memo to file
+function Create-Memo([string]$text)
+{
+    $Time = (Get-Date).ToString([System.Globalization.CultureInfo]::GetCultureInfo(1031).DateTimeFormat.ShortDatePattern)
+    $Memo = New-Object -TypeName PSObject -Property @{
+        Time = "$Time"
+        Text = "$text"
+    }
+    return $Memo
+}
+function Add-Memo([string]$text = "")
+{
+    if ($text -eq "" ) { $text = Read-Host "Enter the text to memorize" }
 
+	$Path = "~/Memos.csv"
+
+	Create-Memo $text | Export-Csv -Path $Path -Append -Force
+
+	Write-Output "$(Get-Emoji "2705") saved to $Path"
+	return
+}
+
+function List-Memos
+{
+    $Path = "~/Memos.csv"
+    if(Test-Path $Path -pathType leaf){
+        $Memos = Import-Csv -Path $Path | Select-Object Time, Text
+    }else{
+        Write-Host "no Memos saved yet"
+        return
+    }
+    $i=0
+    foreach($Row in $Memos){
+        $Time = $Row.Time
+		$Text = $Row.Text
+        Write-Host "$($i.ToString().PadRight(3," ")) $Time  $Text"
+        $i++
+    }
+	return
+}
+function Remove-Memo([int]$id)
+{
+    $Path = "~/Memos.csv"
+    if(Test-Path $Path -pathType leaf){
+        $Memos = Import-Csv -Path $Path | Select-Object Time, Text
+        $i=0;
+        $newMemos = @()
+        foreach($Memo in $Memos){
+            if(-not($i -eq $id)){
+                $newMemos += $Memo
+            }
+            $i++
+        }
+        if($newMemos.Length -gt 0){
+            $newMemos | Select-Object Time, Text | Export-Csv -Path $Path
+        }else{
+            Remove-Item -Path $Path
+        }
+    }else{
+        Write-Host "no Memos saved yet"
+    }
+	return
+}
 #convert files to pdf
 function ConvertToPdf($files, $outFile) {
     Add-Type -AssemblyName System.Drawing
@@ -244,18 +306,10 @@ Function Get-PublicIP {
  (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
 
-#output a whale
+#output a whalecome message
 function whale(){
     $infos = @(
-        "Hello $Env:UserName!"
-        ""
-        ""
-        ""
-        ""
-        ""
-        ""
-        ""
-        ""
+        "$(Get-Emoji "1F44B") Hello $Env:UserName!"
         "$(uptime)"
         ""
     )
@@ -264,8 +318,23 @@ function whale(){
         $warnings += "There is a reboot pending, reboot as soon as possible!"
     }
     $i=0
-    $infoLines = $infos + $warnings
+    $numLines = $infos.Length + $warnings.Length
     $artContent = Get-Content ~\.dotfiles\ascii-art.txt
+    if($numLines -lt $artContent.Length){
+        $numberOfMemos = $artContent.Length - $numLines - 1
+        # add some memos
+        $Path = "~/Memos.csv"
+        if (Test-Path "$Path" -pathType leaf) {
+            $infos += "$(Get-Emoji "1F4C3") Memos:"
+            $Table = Import-CSV "$Path" | Select -Last $numberOfMemos
+            foreach($Row in $Table){
+                $Time = $Row.Time
+                $Text = $Row.Text
+                $infos += "$Time  $Text"
+            }
+        }
+    }
+    $infoLines = $infos + $warnings
     # $infoLines = @("Welcome!") + @(" ") * ($artContent.Length-$infoLines.Length - 1) + $infoLines
     $maxArtLength = ($artContent | Measure -Property length -Maximum).Maximum
     $maxInfoLength = ($infoLines | Measure -Property length -Maximum).Maximum
