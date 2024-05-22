@@ -32,6 +32,12 @@ function Update-System() {
     else {
         sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
     }
+    Write-Host "updating WSL"
+    if ($ifAdmin){
+        wsl --update
+    }else{
+        sudo wsl --update
+    }
     Write-Host "done" -ForegroundColor Green
     Write-Host "checking for software updates..."
     winget update --all -s winget
