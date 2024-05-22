@@ -10,9 +10,11 @@ if(!$myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Admini
     exit
 }
 Write-Host "symlinks"
-New-Item -Path $profile -ItemType SymbolicLink -Value profile\profile.ps1 -Force | Out-Null
-New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value profile\imports -Force | Out-Null
-
+New-Item -Path $profile -ItemType SymbolicLink -Value powershell\profile\profile.ps1 -Force | Out-Null
+New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value powershell\profile\imports -Force | Out-Null
+Get-ChildItem -Path "powershell\modules" | ForEach-Object -process {
+    New-Item -Path "$($env:PSModulePath -split ';' | Select-Object -First 1)\$_" -ItemType SymbolicLink -Value "powershell\modules\$_" -Force | Out-Null
+}
 function Create-Symlinks {
     param(
         [string]$source,
@@ -42,7 +44,6 @@ function Create-Symlinks {
 Create-Symlinks -source "home" -destination $HOME
 Create-Symlinks -source "appdata" -destination $env:APPDATA
 Create-Symlinks -source "appdata" -destination $env:LOCALAPPDATA
-
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Windows features..."
 ./setup/features.ps1
