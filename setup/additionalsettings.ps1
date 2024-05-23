@@ -68,10 +68,11 @@ $settingsData | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding utf8
 # create shortcut for windows terminal quakemode in startup
 $shortcutPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Windows Terminal Quake Mode.lnk"
 if (!(Test-Path $shortcutPath)) {
-    $shell = New-Object -ComObject WScript.Shell
-    $shortcut = $shell.CreateShortcut($shortcutPath)
-    $shortcut.TargetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
-    $shortcut.WindowStyle = 7
-    $shortcut.Arguments = "-w _quake"
-    $shortcut.Save()
+    Remove-Item $shortcutPath
 }
+$shell = New-Object -ComObject WScript.Shell
+$shortcut = $shell.CreateShortcut($shortcutPath)
+$shortcut.TargetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
+$shortcut.WindowStyle = 7
+$shortcut.Arguments = '-w _quake %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoExit Show-Whalecome $true'
+$shortcut.Save()

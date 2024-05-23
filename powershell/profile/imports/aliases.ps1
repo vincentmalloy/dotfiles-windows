@@ -32,3 +32,6 @@ Set-Alias u ubuntu
 Set-Alias e explorer
 Set-Alias terminate Stop-Computer
 Set-Alias reboot Restart-Computer
+
+New-Alias -Name 'Awake' -Value 'Start-Awake' -Scope Global -Force
+New-Alias -Name 'Asleep' -Value 'Stop-Awake' -Scope Global -Force

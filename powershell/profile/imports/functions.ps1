@@ -33,9 +33,10 @@ function Update-System() {
         sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
     }
     Write-Host "updating WSL"
-    if ($ifAdmin){
+    if ($ifAdmin) {
         wsl --update
-    }else{
+    }
+    else {
         sudo wsl --update
     }
     Write-Host "done" -ForegroundColor Green
@@ -173,22 +174,7 @@ function Get-Emoji($hex) {
     return [System.Char]::ConvertFromUtf32($EmojiIcon)
 }
 
-function caffeine() {
-    Write-Host  "$(Get-Emoji 2615) staying awake... ([ctrl] + [c] to stop)`n"
-    $wsh = New-Object -ComObject WScript.Shell
-    $StartDate = Get-Date
-    while (1) {
-        $Duration = New-TimeSpan -Start $StartDate -End $(Get-Date)
-        $span = Format-TimeSpan $Duration "m"
-        # Send Shift+F15 - this is the least intrusive key combination I can think of and is also used as default by:
-        # http://www.zhornsoftware.co.uk/caffeine/
-        $wsh.SendKeys('+{F15}')
-        if ($span) {
-            Write-Host "`r$(Get-Emoji 0001F971) I have been awake for $span".PadRight($Host.UI.RawUI.WindowSize.Width, " ") -NoNewline
-        }
-        Start-Sleep -seconds 59
-    }
-}
+
 
 function Format-TimeSpan($Duration, $unit = "s", $short = $false ) {
     $span = ""
