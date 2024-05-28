@@ -1,5 +1,6 @@
 
 $softwarePackageIds = @(
+    'Microsoft.Powershell'
     'Git.MinGit',
     'KeePassXCTeam.KeePassXC',
     'Microsoft.VisualStudioCode.Insiders',

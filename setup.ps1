@@ -9,55 +9,56 @@ if(!$myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Admini
     Read-Host "Press [Return] key to exit"
     exit
 }
-Write-Host "symlinks"
-New-Item -Path $profile -ItemType SymbolicLink -Value powershell\profile\profile.ps1 -Force | Out-Null
-New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value powershell\profile\imports -Force | Out-Null
-Get-ChildItem -Path "powershell\modules" | ForEach-Object -process {
-    New-Item -Path "$($env:PSModulePath -split ';' | Select-Object -First 1)\$_" -ItemType SymbolicLink -Value "powershell\modules\$_" -Force | Out-Null
-}
-function Create-Symlinks {
-    param(
-        [string]$source,
-        [string]$destination
-    )
-    Get-ChildItem $source | ForEach-Object -process {
-        # $_ is a directory, create a symlink
-        if((Test-Path "$source\$_" -PathType Container)){
-            if(!(Test-Path "$destination\$_")){
-                New-Item -Path "$destination\$_" -ItemType Directory -Force
-            }
-            if(!($_ -match "^\..*")){
-                Create-Symlinks -source "$source\$_" -destination "$destination\$_"
-            }else{
-                $link = New-Item -Path "$destination\$_" -ItemType SymbolicLink -value "$source\$_" -Force
-                $link.Attributes =  $link.Attributes -bor [System.IO.FileAttributes]::Hidden}
-        }else{
-            $link = New-Item -Path "$destination\$_" -ItemType SymbolicLink -value "$source\$_" -Force
-            # if file name starts with ., it is a hidden file
-            if($_ -match "^\..*"){
-                $link.Attributes =  $link.Attributes -bor [System.IO.FileAttributes]::Hidden
-            }
-        }
+
+Write-Host "Powershell Profile"
+# symlink profile
+New-Item -Path $profile -ItemType SymbolicLink -Value "$env:USERPROFILE\.dotfiles\powershell\profile\profile.ps1" -Force | Out-Null
+New-Item -Path "$( Split-Path $profile)\imports" -ItemType SymbolicLink -Value "$env:USERPROFILE\.dotfiles\powershell\profile\imports" -Force | Out-Null
+# setup custom modules
+$modulePath = ($env:PSModulePath -split ';' | Select-Object -First 1)
+# cleanup module symlinks
+Get-ChildItem -Path $modulePath | ForEach-Object -process {
+    if(!(Get-ChildItem -Path "$modulePath\$($_.Name)" -ErrorAction SilentlyContinue)){
+        Remove-Item $_.FullName
     }
 }
+# symlink modules
+Get-ChildItem -Path ".\powershell\modules" | ForEach-Object -process {
+    New-Item -Path "$modulePath\$($_.Name)" -ItemType SymbolicLink -Value $_.FullName -Force | Out-Null
+}
+# import modules
+Get-ChildItem -Path ".\powershell\modules" | ForEach-Object -process {
+    Import-Module $_.Name
+}
 
-Create-Symlinks -source "home" -destination $HOME
-Create-Symlinks -source "appdata" -destination $env:APPDATA
-Create-Symlinks -source "appdata" -destination $env:LOCALAPPDATA
+Write-Host "misc. symlinks"
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.gitconfig" -Value "$env:USERPROFILE\.dotfiles\home\.gitconfig" -Force | Out-Null
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.git_template" -Value "$env:USERPROFILE\.dotfiles\home\.git_template" -Force | Out-Null
+New-Item -ItemType SymbolicLink -Path "$env:APPDATA\helix\config.toml" -Value "$env:USERPROFILE\.dotfiles\home\APPDATA\helix\config.toml" -Force | Out-Null
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\wslconfig" -Value "$env:USERPROFILE\.dotfiles\home\wslconfig" -Force | Out-Null
+$filePath = "powershell.exe"
+if($PSVersionTable.PsVersion.Major -eq 7){
+    $filePath = "pwsh.exe"
+}
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Windows features..."
-./setup/features.ps1
+Start-Process -Verb RunAs -FilePath $filePath -ArgumentList "$env:USERPROFILE/.dotfiles/setup/features.ps1" -Wait
+# ./setup/features.ps1
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Windows settings..."
-./setup/settings.ps1
+Start-Process -Verb RunAs -FilePath $filePath -ArgumentList "$env:USERPROFILE/.dotfiles/setup/settings.ps1" -Wait
+# ./setup/settings.ps1
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
-Write-Host "Poweshell Modules..."
-./setup/modules.ps1
+Write-Host "Powershell Modules..."
+Start-Process -Verb RunAs -FilePath $filePath -ArgumentList "$env:USERPROFILE/.dotfiles/setup/modules.ps1" -Wait
+# ./setup/modules.ps1
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "Installing Software..."
-./setup/software.ps1
+Start-Process -Verb RunAs -FilePath $filePath -ArgumentList "$env:USERPROFILE/.dotfiles/setup/software.ps1" -Wait
+# ./setup/software.ps1
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "configuring some additional Settings..."
-./setup/additionalsettings.ps1
+Start-Process -Verb RunAs -FilePath $filePath -ArgumentList "$env:USERPROFILE/.dotfiles/setup/additionalsettings.ps1" -Wait
+# ./setup/additionalsettings.ps1
 Write-Host -ForeGroundColor "Green" $("`rdone" + (" " * (([Console]::WindowWidth)-4)))
 Write-Host "`n--all done--" -ForeGroundColor "Green"

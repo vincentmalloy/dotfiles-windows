@@ -1,4 +1,4 @@
-$Path = "~/Memos.csv"
+$Path = "$env:USERPROFILE\Memos.csv"
 
 function Initialize-Memo([string]$text) {
     $Time = (Get-Date).ToString((Get-Culture).DateTimeFormat.ShortDatePattern)
@@ -22,7 +22,7 @@ function Add-Memo([string]$text = "") {
 
     Initialize-Memo $text | Export-Csv -Path $Path -Append -Force
 
-    Write-Output "$(Get-Emoji "2705") saved to $Path"
+    Write-Output "$(Get-Emoji "Checkmark") saved to $Path"
     return
 }
 

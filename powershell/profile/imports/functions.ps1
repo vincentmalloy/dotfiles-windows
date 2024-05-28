@@ -11,6 +11,7 @@ function Edit-Dotfiles { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:E
 function refreshPath() {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
+
 # winget query if package is installed
 function installed($id) {
     winget list --source winget -q $id | Out-Null
@@ -27,10 +28,10 @@ function Update-System() {
     }
     Write-Host "checking for windows updates..."
     if ($isAdmin) {
-        Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+        Get-WindowsUpdate -Install -IgnoreUserInput -IgnoreReboot -AcceptAll
     }
     else {
-        sudo Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+        sudo Get-WindowsUpdate -Install -IgnoreUserInput -IgnoreReboot -AcceptAll
     }
     Write-Host "updating WSL"
     if ($ifAdmin) {
@@ -43,11 +44,11 @@ function Update-System() {
     Write-Host "checking for software updates..."
     winget update --all -s winget
     Write-Host "done" -ForegroundColor Green
-    Write-Host "updating ubuntu packages..."
-    ubuntu run "sudo apt update && sudo apt upgrade -y"
+    Write-Host "updating ubuntu..."
+    ubuntu run "sudo apt update && sudo apt upgrade -y;curl -s https://ohmyposh.dev/install.sh | sudo bash -s"
     # choco upgrade all
     Write-Host "all done!" -ForegroundColor Green
-    if (Test-PendingReboot -SkipConfigurationManagerClientCheck | Select-Object -ExpandProperty IsRebootPending) {
+    if (Test-PendingReboot) {
         Write-Host "There is a reboot pending, reboot as soon as possible!" -ForegroundColor Red
     }
 }
@@ -74,176 +75,6 @@ function Set-JsonData {
         $data | Add-Member -Name $setting -Value "$value" -MemberType NoteProperty
     }
     $data | ConvertTo-Json | Out-File $path -Encoding utf8
-}
-
-#convert files to pdf
-function ConvertToPdf($files, $outFile) {
-    Add-Type -AssemblyName System.Drawing
-    $files = @($files)
-    if (!$outFile) {
-        $firstFile = $files[0] 
-        if ($firstFile.FullName) { $firstFile = $firstFile.FullName }
-        $outFile = $firstFile.Substring(0, $firstFile.LastIndexOf(".")) + ".pdf"
-    }
-    else {
-        if (![System.IO.Path]::IsPathRooted($outFile)) {
-            $outFile = [System.IO.Path]::Combine((Get-Location).Path, $outFile)
-        }
-    }
-
-    try {
-        $doc = [System.Drawing.Printing.PrintDocument]::new()
-        $opt = $doc.PrinterSettings = [System.Drawing.Printing.PrinterSettings]::new()
-        $opt.PrinterName = "Microsoft Print to PDF"
-        $opt.PrintToFile = $true
-        $opt.PrintFileName = $outFile
-
-        $script:_pageIndex = 0
-        $doc.add_PrintPage({
-                param($sender, [System.Drawing.Printing.PrintPageEventArgs] $a)
-                $file = $files[$script:_pageIndex]
-                if ($file.FullName) {
-                    $file = $file.FullName
-                }
-                $script:_pageIndex = $script:_pageIndex + 1
-
-                try {
-                    $image = [System.Drawing.Image]::FromFile($file)
-                    $a.Graphics.DrawImage($image, $a.PageBounds)
-                    $a.HasMorePages = $script:_pageIndex -lt $files.Count
-                }
-                finally {
-                    $image.Dispose()
-                }
-            })
-
-        $doc.PrintController = [System.Drawing.Printing.StandardPrintController]::new()
-
-        $doc.Print()
-        return $outFile
-    }
-    finally {
-        if ($doc) { $doc.Dispose() }
-    }
-}
-
-function ConvertNextcloudDocumentsToPdf() {
-    $files = Get-ChildItem -Path $env:USERPROFILE\Nextcloud\Documents -Recurse -Include *.docx, *.doc, *.odt, *.jpeg, *.jpg, *.png, *.bmp, *.tiff, *.tif
-    $files | ForEach-Object {
-        # get the file dorectory path
-        $dir = $_.DirectoryName
-        Push-Location $dir
-        # get the file name without extension
-        $name = $_.Name.Substring(0, $_.Name.LastIndexOf("."))
-        # check if filename ends in page number
-        if ($name -match " p\d+$") {
-            $name = $name.Substring(0, $name.LastIndexOf(" p"))
-            #collect all pages
-            $pages = $files | Where-Object { $_.Name -match "^$name p\d+\." }
-            if (Test-Path "$name.pdf") {
-                Write-Output "$name.pdf already exists"
-                # remove the original file
-                Remove-Item $_
-                Pop-Location
-                return
-            }
-            ConvertToPdf $pages "$name.pdf"
-            # remove the original file
-            Remove-Item $_
-            Pop-Location
-            return
-        }
-        # check if pdf file already exists
-        if (Test-Path "$name.pdf") {
-            Write-Output "$name.pdf already exists"
-            # remove the original file
-            Remove-Item $_
-            Pop-Location
-            return
-        }
-        # convert to pdf
-        ConvertToPdf $_ "$name.pdf"
-        # remove the original file
-        Remove-Item $_
-        Pop-Location
-    }
-}
-
-function Get-Emoji($hex) {
-    $EmojiIcon = [System.Convert]::toInt32($hex, 16)
-    return [System.Char]::ConvertFromUtf32($EmojiIcon)
-}
-
-
-
-function Format-TimeSpan($Duration, $unit = "s", $short = $false ) {
-    $span = ""
-    $Day = switch ($Duration.Days) {
-        0 { $null; break }
-        1 { "{0} Day" -f $Duration.Days; break }
-        Default { "{0} Days" -f $Duration.Days }
-    }
-    if (($short -and $Day)) {
-        return $Day
-    }
-    $span += "$Day"
-    if ($unit -eq "d") {
-        return $span
-    }
-    $Hour = switch ($Duration.Hours) {
-        0 { $null; break }
-        1 { "{0} Hour" -f $Duration.Hours; break }
-        Default { "{0} Hours" -f $Duration.Hours }
-    }
-    if ($short -and $Hour) {
-        return $Hour
-    }
-    if ($span -and $Hour) {
-        $span += ", "
-    }
-    $span += "$Hour"
-    if ($unit -eq "h") {
-        return $span
-    }
-    $Minute = switch ($Duration.Minutes) {
-        0 { $null; break }
-        1 { "{0} Minute" -f $Duration.Minutes; break }
-        Default { "{0} Minutes" -f $Duration.Minutes }
-    }
-    if ($short -and $Minute) {
-        return $Minute
-    }
-    if ($span -and $Minute) {
-        $span += ", "
-    }
-    $span += "$Minute"
-    if ($unit -eq "m") {
-        return $span
-    }
-    $Second = switch ($Duration.Seconds) {
-        # 0 { $null; break }
-        1 { "{0} Second" -f $Duration.Seconds; break }
-        Default { "{0} Seconds" -f $Duration.Seconds }
-    }
-    if ($short -and $Second) {
-        return $Second
-    }
-    if ($span -and $Second) {
-        $span += " and "
-    }
-    $span += "$Second"
-    return $span
-}
-
-function Get-Uptime {
-    Get-WmiObject win32_operatingsystem | Select-Object @{LABEL = 'LastBootUpTime';
-        EXPRESSION                                              = { $_.ConverttoDateTime($_.lastbootuptime) }
-    }
-}
-
-function uptime {
-    $uptime = New-TimeSpan -Start $(Get-Uptime | Select-Object -ExpandProperty LastBootUpTime) -End $(Get-Date)
-    return "last Boot-up was $(Format-TimeSpan $uptime "s" $true) ago"
 }
 
 Function Get-PublicIP {

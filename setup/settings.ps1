@@ -1,5 +1,9 @@
 # Set Computer Name
-(Get-WmiObject Win32_ComputerSystem).Rename("SIMON-PC") | Out-Null
+if($PSVersionTable.PsVersion.Major -eq 7){
+    Rename-Computer -NewName "SIMON-PC" -Force -ErrorAction 'SilentlyContinue'
+}else{
+    (Get-WmiObject Win32_ComputerSystem).Rename("SIMON-PC") | Out-Null
+}
 # enable dark mode for apps
 $value = Get-ItemPropertyValue -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme
 if($value -ne 0){

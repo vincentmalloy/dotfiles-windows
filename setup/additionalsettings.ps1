@@ -2,10 +2,9 @@
 $gitConfigLocalPath = "$env:USERPROFILE\.gitconfig.local"
 if (!(Test-Path $gitConfigLocalPath)) {
     Write-Host "Creating gitconfig.local..."
-    # ask user for full name
-    $gitName = Read-Host "Enter your full name"
-    # ask user for email
-    $gitEmail = Read-Host "Enter your email"
+    $userInfo = Get-UserInfo
+    $gitName = $userInfo.Name
+    $gitEmail = $userInfo.Email
     # write to gitconfig.local
     @"
 [user]
@@ -14,14 +13,12 @@ if (!(Test-Path $gitConfigLocalPath)) {
 [init]
     templateDir = ~/.git_template
 "@ | Out-File $gitConfigLocalPath -Encoding utf8
-(Get-Item $gitConfigLocalPath).Attributes = (Get-Item $gitConfigLocalPath).Attributes -bor [System.IO.FileAttributes]::Hidden
+# (Get-Item $gitConfigLocalPath).Attributes = (Get-Item $gitConfigLocalPath).Attributes -bor [System.IO.FileAttributes]::Hidden
 }
 # create .gitignore_global if it does not exist
 if (!(Test-Path "$env:USERPROFILE\.gitignore_global")) {
     Write-Host "Creating .gitignore_global..."
     (New-Object Net.WebClient).DownloadFile("https://www.gitignore.io/api/windows,visualstudio,visualstudiocode", "$env:USERPROFILE\.gitignore_global")
-    $gitIgnore = Get-Item "$env:USERPROFILE\.gitignore_global"
-    $gitIgnore.Attributes =  $gitIgnore.Attributes -bor [System.IO.FileAttributes]::Hidden
 }
 # setup wallpaper
 $monitors = Get-Monitor
@@ -74,5 +71,5 @@ $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe"
 $shortcut.WindowStyle = 7
-$shortcut.Arguments = '-w _quake %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoExit Show-Whalecome $true'
+$shortcut.Arguments = '-w _quake %PROGRAMFILES%\PowerShell\7\pwsh.exe -NoLogo -NoExit -Command Show-Whalecome'
 $shortcut.Save()

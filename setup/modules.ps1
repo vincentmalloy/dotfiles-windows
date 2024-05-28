@@ -9,17 +9,17 @@ if(!(Get-Module -ListAvailable -Name FP.SetWallpaper)){
 }
 if(!(Get-Module -ListAvailable -Name PSWindowsUpdate)){
     Write-Output "Installing PSWindowsUpdate"
-    Install-Module PSWindowsUpdate -Scope CurrentUser -Force
+    Install-Module PSWindowsUpdate -Force -AcceptLicense
 }
-if(!(Get-InstalledModule -MinimumVersion  2.1.0 -Name PSReadLine)){
+if(!(Get-Module -ListAvailable -Name PSReadLine)){
     Write-Output "Installing PSReadLine"
-    Install-Module PSReadLine -MinimumVersion  2.1.0 -Force
+    Install-Module PSReadLine -MinimumVersion  2.3.5 -Force
 }
-if(!(Get-Module -ListAvailable -Name Get-ChildItemColor)){
-    Write-Output "installing Get-ChildItemColor"
-    Install-Module Get-ChildItemColor -Force -AcceptLicense
+if(!(Get-Module -ListAvailable -Name Terminal-Icons)){
+    Write-Output "installing Terminal-Icons"
+    Install-Module -Name Terminal-Icons -Force -AcceptLicense -Repository PSGallery
 }
-if(!(Get-Module -ListAvailable -Name PendingReboot)){
-    Write-Output "installing PendingReboot"
-    Install-Module PendingReboot -Force -AcceptLicense
-}
+
+Import-Module 'gsudoModule'
+Import-Module 'PowershellGet'
+Import-Module -Name Terminal-Icons
