@@ -1,3 +1,18 @@
+function Get-NextcloudFolders() {
+    $folders = [System.Collections.ArrayList]::new()
+    Get-Content "$env:APPDATA\Nextcloud\nextcloud.cfg" | foreach-object -process {
+        if ($_ -Match "localPath") {
+            $keyValuePair = [regex]::split($_, '=')
+            Write-Host $keyValuePair[1]
+            $folders.Add([string]$keyValuePair[1])
+        }
+    }
+    return $folders
+}
+
+function Get-NextcloudConfig() {
+    $folders = Get-NextcloudFolders
+}
 
 #convert files to pdf
 function ConvertToPdf($files, $outFile) {
@@ -94,3 +109,5 @@ function ConvertNextcloudDocumentsToPdf() {
 
 Export-ModuleMember -Function ConvertToPdf
 Export-ModuleMember -Function ConvertNextcloudDocumentsToPdf
+Export-ModuleMember -Function Get-NextcloudConfig
+Export-ModuleMember -Function Get-Scan

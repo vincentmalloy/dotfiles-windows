@@ -25,6 +25,22 @@ if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
     # refresh $path
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
+# install chocolatey
+if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Output "Installing Chocolatey"
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    # refresh $path
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    choco feature enable -n allowGlobalConfirmation
+    choco feature enable -n=useEnhancedExitCodes
+}
+# install scoop
+if (!(Get-Command scoop -ErrorAction SilentlyContinue)) {
+    Write-Output "Installing Scoop"
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
 # install minimal git
 if (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Output "Installing Git.MinGit"

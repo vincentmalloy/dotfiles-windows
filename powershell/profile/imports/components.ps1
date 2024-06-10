@@ -8,6 +8,6 @@ if((Get-Command PSConsoleHostReadLines -errorAction SilentlyContinue | Select -E
     Set-PSReadLineOption -PredictionSource History
     Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 }
-if(!(Get-Module -ListAvailable -Name Terminal-Icons)){
+if(Get-Module -ListAvailable -Name Terminal-Icons){
     Import-Module -Name Terminal-Icons
 }

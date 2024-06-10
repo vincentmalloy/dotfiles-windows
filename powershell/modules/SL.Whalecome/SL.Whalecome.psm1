@@ -108,6 +108,7 @@ function Get-Art {
 function Get-Memos {
     $data = New-Object System.Collections.Generic.List[System.Object]
     $data.Add("$(Get-Emoji "Page") Memos:")
+    $data.Add("$($PSStyle.Foreground.BrightBlack)$($PSStyle.Dim)use $($PSStyle.Italic)[Add-Memo]$($PSStyle.Reset)$($PSStyle.Foreground.BrightBlack)$($PSStyle.Dim) to record a Memo$($PSStyle.Reset)")
     $data.Add(" ")
     # $data = @(
     #     "$(Get-Emoji "Page") Memos:"
@@ -175,109 +176,6 @@ function Show-Whale {
     Show-Data $whale ($columnWidth * ($columns - 1)) 1
 }
 
-
-# function Get-WindowsUpdateJob($columns, $verticalOffset) {
-#     $Global:windowsUpdateColumns = $columns
-#     $Global:windowsUpdateOffset = $verticalOffset
-#     $Global:windowsUpdateChars = New-Object PSObject -Property @{
-#         updateWarnChar = $updateWarnChar
-#         updateOkChar   = $updateOkChar
-#     }
-#     $scriptBlock = {
-#         function Get-Emoji($hex) {
-#             $EmojiIcon = [System.Convert]::toInt32($hex, 16)
-#             return [System.Char]::ConvertFromUtf32($EmojiIcon)
-#         }
-#         $returnValue = @()
-#         if (sudo Get-WindowsUpdate -NotCategory "Drivers") {
-#             $returnValue += "$(Get-Emoji "2757") Windows: updates available"
-#         }
-#         else {
-#             $returnValue += "$(Get-Emoji "2705") Windows: no updates to install"
-#         }
-#         return $returnValue
-#     }
-#     $job = Start-Job -Name WindowsUpdateJob -ScriptBlock $scriptBlock
-#     $null = Register-ObjectEvent -InputObject $job -EventName StateChanged -MessageData $job.Id -SourceIdentifier WindowsUpdateJob.monitor -Action {
-#         $Global:WindowsUpdateJobEvent = $event
-#         $cursor = New-Object PSObject -Property @{
-#             Top  = [console]::CursorTop
-#             Left = [console]::CursorLeft
-#         }
-#         Receive-Job $WindowsUpdateJobEvent.sender.id | ForEach-Object -process {
-#             [console]::setcursorposition(([System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $windowsUpdateColumns) * 1), $windowsUpdateOffset)
-#             $color = "White"
-#             if ($_.substring(0, 1) -eq $updateChars.updateWarnChar) {
-#                 $color = "Yellow"
-#             }
-#             Write-Host "$_" -ForegroundColor $color
-#             $v++
-#         }
-#         [console]::setcursorposition($cursor.Left, $cursor.Top)
-#         Stop-Job -Name "WindowsUpdateJob"
-#         Remove-Job -Name "WindowsUpdateJob"
-#         Unregister-Event $WindowsUpdateJobEvent
-#         Remove-Event $WindowsUpdateJobEvent
-#         Stop-Job -Name "WindowsUpdateJob.monitor"
-#         Remove-Job -Name "WindowsUpdateJob.monitor"
-#         Remove-Variable $WindowsUpdateJobEvent
-#         Remove-Variable $windowsUpdateColumns
-#         Remove-Variable $windowsUpdateOffset
-#         Remove-Variable $windowsUpdateChars
-#     }
-# }
-# function Get-WingetJob($columns, $verticalOffset) {
-#     $Global:wingetColumns = $columns
-#     $Global:wingetOffset = $verticalOffset
-#     $Global:wingetupdateChars = New-Object PSObject -Property @{
-#         updateWarnChar = $updateWarnChar
-#         updateOkChar   = $updateOkChar
-#     }
-#     $scriptBlock = {
-#         function Get-Emoji($hex) {
-#             $EmojiIcon = [System.Convert]::toInt32($hex, 16)
-#             return [System.Char]::ConvertFromUtf32($EmojiIcon)
-#         }
-#         $returnValue = @()
-#         $softwareUpgrades = winget upgrade | Select-Object -Last 1
-#         if (-not($softwareUpgrades.subString(0,2) -eq "No")) {
-#             $returnValue += "$(Get-Emoji "2757") winget: $softwareUpgrades"
-#         }
-#         else {
-#             $returnValue += "$(Get-Emoji "2705") winget: no upgrades to install"
-#         }
-#         return $returnValue
-#     }
-#     $job = Start-Job -Name WingetJob -ScriptBlock $scriptBlock
-#     $null = Register-ObjectEvent -InputObject $job -EventName StateChanged -MessageData $job.Id -SourceIdentifier WingetJob.monitor -Action {
-#         $Global:WingetJobEvent = $event
-#         $cursor = New-Object PSObject -Property @{
-#             Top  = [console]::CursorTop
-#             Left = [console]::CursorLeft
-#         }
-#         Receive-Job $WingetJobEvent.sender.id | ForEach-Object -process {
-#             [console]::setcursorposition(([System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $wingetColumns) * 1), $wingetOffset)
-#             $color = "White"
-#             if ($_.substring(0, 1) -eq $wingetupdateChars.updateWarnChar) {
-#                 $color = "Yellow"
-#             }
-#             Write-Host "$_" -ForegroundColor $color
-#             $wingetOffset++
-#         }
-#         [console]::setcursorposition($cursor.Left, $cursor.Top)
-#         Stop-Job -Name "WingetJob"
-#         Remove-Job -Name "WingetJob"
-#         Unregister-Event $WingetJobEvent
-#         Remove-Event $WingetJobEvent
-#         Stop-Job -Name "WingetJob.monitor"
-#         Remove-Job -Name "WingetJob.monitor"
-#         Remove-Variable $WingetJobEvent
-#         Remove-Variable $wingetColumns
-#         Remove-Variable $wingetOffset
-#         Remove-Variable $wingetupdateChars
-#     }
-# }
-
 function Get-WeatherJob([string]$location = "idar-oberstein") {
     $jobInput = New-Object PSObject -Property @{
         location = $location
@@ -314,56 +212,10 @@ function Get-WeatherJob([string]$location = "idar-oberstein") {
     }
 }
 
-# function Show-Whalecome ($additionalInfo = $false) {
-#     Clear-Host
-#     $columns = 4
-#     if ($Host.UI.RawUI.WindowSize.Width -lt 200) {
-#         $columns = 3
-#     }
-#     if ($Host.UI.RawUI.WindowSize.Width -lt 120) {
-#         $columns = 2
-#     }
-#     $messagesData = Get-Messages
-#     $warningsData = Get-Software
-#     if ($columns -gt 2) {
-#         $memosData = Get-Memos
-#     }
-#     if ($columns -gt 3) {
-#         $artData = Get-Art
-#     }
-#     $dataLength = ($messagesData, $warningsData, $memosData, $artData | Measure-Object -Property length -Maximum).Maximum
-#     $offsetX = 0
-#     $messagesData, $warningsData, $memosData, $artData | ForEach-Object -process {
-#         if ($_) {
-#             $data = @()
-#             For ($i = 0; $i -lt $dataLength; $i++) {
-#                 if ($i -lt $_.Length) {
-#                     $string = $_[$i].subString(0, [System.Math]::Min([System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $columns), $_[$i].Length)) 
-#                     $data += $string
-#                 }
-#                 else {
-#                     $data += " "
-#                 }
-#             }
-#             $width = ($data | Measure-Object -Property length -Maximum).Maximum
-#             Show-Data $data (([System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $columns) * $offsetX) + $width)
-#             $offsetX++
-#         }
-#     }
-#     Write-Host $(" " * $Host.UI.RawUI.WindowSize.Width)
-#     if ($additionalInfo) {
-#         if ($columns -gt 3) {
-#             Get-WeatherJob
-#         }
-#         Get-WindowsUpdateJob $columns $warningsData.Length
-#         Get-WingetJob $columns $warningsData.Length+1
-#     }
-# }
-
-# Export-ModuleMember -Function Show-Whalecome
 function Build-SoftwareColumn($left, $top, $width) {
     $softwareColumn = [UiTable]::new($left, $top, $width)
     $softwareColumn.Update(0, "$(Get-Emoji "Floppy") Software")
+    $softwareColumn.Update(1, "$($PSStyle.Foreground.BrightBlack)$($PSStyle.Dim)to update run $($PSStyle.Italic)Update-System$($PSStyle.Reset)")
     $softwareColumn.Update(3, "checking for software updates...")
     $softwareScriptBlock = {
         $result = New-Object PSObject -Property @{
@@ -372,7 +224,7 @@ function Build-SoftwareColumn($left, $top, $width) {
         }
         $softwareUpgrades = winget upgrade | Select-Object -Last 1
         if (-not($softwareUpgrades.subString(0, 2) -eq "No")) {
-            $result.text = "winget: $softwareUpgrades"
+            $result.text = "$($PSStyle.Foreground.Yellow)winget: $softwareUpgrades$($PSStyle.Reset)"
             $result.hex = "2757"
         }
         else {
@@ -391,7 +243,7 @@ function Build-SoftwareColumn($left, $top, $width) {
             hex  = ""
         }
         if (sudo Get-WindowsUpdate -NotCategory "Drivers") {
-            $result.text = "Windows: updates available."
+            $result.text = "$($PSStyle.Foreground.Yellow)Windows: updates available.$($PSStyle.Reset)"
             $result.hex = "2757"
         }
         else {
@@ -401,6 +253,27 @@ function Build-SoftwareColumn($left, $top, $width) {
         return $result
     }
     $softwareColumn.getScriptData("windowsUpdate", $softwareScriptBlock2, 4, "")
+    $softwareColumn.Update(5, "checking for chocolatey updates...", $true)
+
+    $softwareScriptBlock3 = {
+        $result = New-Object PSObject -Property @{
+            text = ""
+            hex  = ""
+        }
+        choco outdated | out-null
+        if($LASTEXITCODE -eq 2){
+            $result.text = "$($PSStyle.Foreground.Yellow)Chocolatey: upgrades available.$($PSStyle.Reset)"
+            $result.hex = "2757"
+        }elseif($LASTEXITCODE -eq 0){
+            $result.text = "Chocolatey: no upgrades to install."
+            $result.hex = "2705"
+        }else{
+            $result.text = "$($PSStyle.Foreground.Red)Chocolatey: an error has occured.$($PSStyle.Reset)"
+            $result.hex = "26A0"
+        }
+        return $result
+    }
+    $softwareColumn.getScriptData("Chocolatey", $softwareScriptBlock3, 5, "")
 }
 
 function Build-WhaleColumn($left, $top, $width) {
@@ -419,6 +292,7 @@ function Build-InfoColumn($left, $top, $width) {
     $infoColumn = [UiTable]::new($left, $top, $width)
     $infos = @(
         "$(Get-Emoji "WavingHand") Hello $Env:UserName!"
+        ""
         ""
         "Today is $((Get-Date).ToString((Get-Culture).DateTimeFormat.LongDatePattern))"
         ""
