@@ -46,12 +46,8 @@ function Write-ToPosition {
         Top  = [console]::CursorTop
         Left = [console]::CursorLeft
     }
-    $color = "White"
-    if($text.Substring(0,1) -eq $(Get-Emoji "Exclamation")){
-        $color = "Yellow"
-    }
     [console]::setcursorposition($position.Left, $position.Top)
-    Write-Host "$text" -NoNewline -ForegroundColor $color
+    Write-Host "$text" -NoNewline
     [console]::setcursorposition($cursor.Left, $cursor.Top)
     return
 }

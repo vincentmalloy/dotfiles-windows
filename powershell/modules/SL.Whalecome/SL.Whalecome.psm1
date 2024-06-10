@@ -127,46 +127,6 @@ function Get-Memos {
     return $data.ToArray()
 }
 
-# function Color-String($color, $string) {
-#     return "$("$([char]0x1b)[$($color)m")$string$("$([char]0x1b)[0m")"
-# }
-
-# function Get-Messages {
-#     $data = @(
-#         "$(Get-Emoji "WavingHand") Hello $Env:UserName!"
-#         ""
-#         "Today is $((Get-Date).ToString((Get-Culture).DateTimeFormat.LongDatePattern))"
-#         ""
-#         "$(uptime)"
-#         ""
-#     )
-#     $data += "Free Disk Space:"
-#     $data += ""
-#     (Get-CimInstance -Class Win32_LogicalDisk | Select-Object -Property DeviceID, VolumeName, @{Label = 'FreeSpace (Gb)'; expression = { ($_.FreeSpace / 1GB).ToString('F2') } }, @{Label = 'Total (Gb)'; expression = { ($_.Size / 1GB).ToString('F2') } }, @{label = 'FreePercent'; expression = { [Math]::Round(($_.freespace / $_.size) * 100, 2) } }) | ForEach-Object -process {
-#         $data += "$($_.VolumeName.PadRight(8," ")) ($($_.DeviceID)) $($_."FreeSpace (Gb)".PadLeft(8," ")) GB ($($_.FreePercent)%)"    
-#     }
-#     return $data
-# }
-
-
-# function Get-Software {
-#     $data = @(
-#         "$(Get-Emoji "Floppy")  Software:"
-#         ""
-#     )
-#     if (Test-PendingReboot) {
-#         $data += "$updateWarnChar System Reboot Pending"
-#     }
-#     $psDrive = Get-PSDrive "C"
-#     $spaceTotal = $psDrive.Used + $psDrive.Free
-#     $percentageUsed = [math]::Round(($psDrive.Used / $spaceTotal) * 100)
-#     if ($percentageUsed -gt 85) {
-#         $data += "$updateWarnChar System Drive C: is almost Full! ($percentageUsed % - $([System.Math]::Floor($psDrive.Used/1GB)) of $([System.Math]::Floor($spaceTotal/1GB)) GB)"
-#     }
-
-#     return $data
-# }
-
 function Show-Whale {
     $columns = [System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $columnMinWidth)
     $columnWidth = [System.Math]::Floor($Host.UI.RawUI.WindowSize.Width / $columns)
