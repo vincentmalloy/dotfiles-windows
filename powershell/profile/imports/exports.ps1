@@ -10,4 +10,7 @@ function Set-Environment([String] $variable, [String] $value) {
 Set-Environment "EDITOR" "code-insiders"
 Set-Environment "GIT_EDITOR" $Env:EDITOR
 # fix minGit for old wingetr
-Set-Environment "PATH" "$Env:PATH;C:\Users\simon\AppData\Local\Microsoft\WinGet\Packages\Git.MinGit_Microsoft.Winget.Source_8wekyb3d8bbwe\cmd"
+$minGitPath = Get-ChildItem -Path "$Env:LOCALAPPDATA\Microsoft\WinGet\Packages\" -Filter Git.MinGit* -ErrorAction SilentlyContinue -Force | ForEach-Object {$_.FullName}
+if($minGitPath){
+    Set-Environment "PATH" "$Env:PATH;$minGitPath\cmd"
+}
