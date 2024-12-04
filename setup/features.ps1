@@ -18,11 +18,11 @@ if(!(wsl -l | Where-Object {$_.Replace("`0","") -match '^NixOS'})){
     
     $download = "https://github.com/$repo/releases/latest/download/$filename"
     
-    # Invoke-WebRequest $download -Out $filename
+    Invoke-WebRequest $download -Out "$env:temp\$filename"
 
-    wsl --import NixOS $env:USERPROFILE\NixOS\ $filename --version 2
+    wsl --import NixOS $env:USERPROFILE\NixOS\ "$env:temp\$filename" --version 2
     
-    # Remove-Item $filename
+    Remove-Item "$env:temp\$filename"
     $hostname = "voyager2"
     $githubUser = "vincentmalloy"
     $flakeRepo = "nixos-config"
