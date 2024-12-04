@@ -55,8 +55,7 @@ function Update-System() {
         }
     }
     Write-Host "done" -ForegroundColor Green
-    Write-Host "updating ubuntu..."
-    ubuntu run "sudo apt update && sudo apt upgrade -y;curl -s https://ohmyposh.dev/install.sh | sudo bash -s"
+    Write-Host "not yet updating nixos..."
     Write-Host "all done!" -ForegroundColor Green
     if (Test-PendingReboot) {
         Write-Host "There is a reboot pending, reboot as soon as possible!" -ForegroundColor Red
